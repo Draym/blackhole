@@ -1,0 +1,15 @@
+// import npm scss here
+@import "node_modules/bootstrap/scss/bootstrap";
+
+// Variables
+@import "variables";
+
+// CSS
+@import "menu";
+@import "responsive";
+
+// ie fixes
+@import "ie-fix";
+
+// game match
+@import "game";

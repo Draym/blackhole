@@ -1,0 +1,60 @@
+
+/*
+** ALIGN
+ */
+
+.horizontal-align {
+  width: 50%;
+  margin: 0 auto;
+}
+
+.vertical-align {
+  position: relative;
+  top: 40%;
+  -webkit-transform: translateY(-40%);
+  -ms-transform: translateY(-40%);
+  transform: translateY(-40%);
+}
+
+/*
+** POSITION
+ */
+
+.v-align {
+  display: flex;
+  align-items: center;
+}
+
+.h-align {
+  display: flex;
+  justify-content: center;
+}
+
+.c-align {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/*
+** SIZES
+ */
+.width-full {
+  width: 100%;
+}
+
+.height-full {
+  height: 100%;
+}
