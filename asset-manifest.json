@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/blackhole/static/css/main.ad319afa.chunk.css",
+    "main.js": "/blackhole/static/js/main.4b664668.chunk.js",
+    "main.js.map": "/blackhole/static/js/main.4b664668.chunk.js.map",
+    "runtime-main.js": "/blackhole/static/js/runtime-main.479976ba.js",
+    "runtime-main.js.map": "/blackhole/static/js/runtime-main.479976ba.js.map",
+    "static/js/2.1d2544d9.chunk.js": "/blackhole/static/js/2.1d2544d9.chunk.js",
+    "static/js/2.1d2544d9.chunk.js.map": "/blackhole/static/js/2.1d2544d9.chunk.js.map",
+    "static/js/3.375d43b1.chunk.js": "/blackhole/static/js/3.375d43b1.chunk.js",
+    "static/js/3.375d43b1.chunk.js.map": "/blackhole/static/js/3.375d43b1.chunk.js.map",
+    "index.html": "/blackhole/index.html",
+    "static/css/main.ad319afa.chunk.css.map": "/blackhole/static/css/main.ad319afa.chunk.css.map",
+    "static/js/2.1d2544d9.chunk.js.LICENSE.txt": "/blackhole/static/js/2.1d2544d9.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.479976ba.js",
+    "static/js/2.1d2544d9.chunk.js",
+    "static/css/main.ad319afa.chunk.css",
+    "static/js/main.4b664668.chunk.js"
+  ]
+}
