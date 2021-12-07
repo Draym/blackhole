@@ -1,4 +1,5 @@
 import Web3 from 'web3'
+import detectEthereumProvider from '@metamask/detect-provider';
 
 declare let window: any;
 
@@ -6,16 +7,38 @@ export default class Web3Utils {
 
     static async loadMetamask() {
         if (window.ethereum) {
-            await window.ethereum.request({ method: 'eth_requestAccounts' })
+            const accounts = await window.ethereum.request({method: 'eth_requestAccounts'})
             window.web3 = new Web3(window.ethereum)
+            window.ethereum.defaultAccount = accounts[0]
+            window.ethereum.on('accountsChanged', (accounts: string[]) => {
+                window.ethereum.defaultAccount = accounts[0]
+            })
             return true
         }
-        else if (window.web3) {
-            window.web3 = new Web3(window.web3.currentProvider)
-            return true
-        }
+            // else if (window.web3) {
+            //     window.web3 = new Web3(window.web3.currentProvider)
+            //     return true
+        // }
         else {
             window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
+            return false
+        }
+    }
+
+    static async isMetamaskInstalled() {
+        const provider = await detectEthereumProvider();
+        return !!provider;
+    }
+
+    static async isMetamaskConnected() {
+        const provider = await detectEthereumProvider()
+
+        if (provider) {
+            console.log('Metamask successfully detected!');
+            const result = await window.ethereum.request({method: 'eth_accounts'})
+            return result.length > 0
+        } else {
+            console.log('Metamask is not installed!');
             return false
         }
     }
@@ -30,19 +53,19 @@ export default class Web3Utils {
     }
 
     static async getAccounts(): Promise<string[]> {
-        return window.web3.eth.getAccounts()//window.ethereum.request({ method: 'eth_requestAccounts' })
+        return await window.ethereum.request({method: 'eth_accounts'})
     }
 
     static getDefaultAccount(): string | null {
-        return window.web3.eth.defaultAccount
-    }
-
-    static setDefaultAccount(account: any) {
-        window.web3.eth.defaultAccount = account
+        try {
+            return window.ethereum.defaultAccount
+        } catch (e) {
+            return null
+        }
     }
 
     static encode(value: string): string {
-       return window.web3.utils.fromAscii(value)
+        return window.web3.utils.fromAscii(value)
     }
 
     static nullAddress() {
