@@ -15,9 +15,9 @@ export default class Web3Utils {
             })
             return true
         }
-            // else if (window.web3) {
-            //     window.web3 = new Web3(window.web3.currentProvider)
-            //     return true
+        // else if (window.web3) {
+        //     window.web3 = new Web3(window.web3.currentProvider)
+        //     return true
         // }
         else {
             window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
@@ -49,6 +49,7 @@ export default class Web3Utils {
     }
 
     static async getNetwork(): Promise<number> {
+        console.log("get network")
         return window.web3.eth.net.getId()
     }
 

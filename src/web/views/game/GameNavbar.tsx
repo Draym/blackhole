@@ -23,7 +23,7 @@ export default class GameNavbar extends Component<GameNavbarProperties, GameNavb
     }
 
     async componentDidMount() {
-            this.setState({loading: false})
+        this.setState({loading: false})
     }
 
     render() {
