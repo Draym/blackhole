@@ -1,2 +1,2 @@
-export type NokaiId = number
+export type NokaiId = bigint
 export type Address = string

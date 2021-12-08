@@ -48,7 +48,7 @@ export default class Web3Utils {
         return window.ethereum
     }
 
-    static async getNetwork(): Promise<number> {
+    static async getNetwork(): Promise<bigint> {
         console.log("get network")
         return window.web3.eth.net.getId()
     }

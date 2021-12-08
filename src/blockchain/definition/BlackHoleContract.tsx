@@ -1,17 +1,17 @@
 import {Territory} from "./data/Territory";
-import {Position} from "./data/Position";
+import {NokaiPos} from "./data/NokaiPos";
 import {Address, NokaiId} from "./types";
 import {Contract} from "web3-eth-contract";
 
 export interface SlotDiscovered {
-    x: number,
-    y: number,
+    x: bigint,
+    y: bigint,
     by: Address
 }
 
 export interface SlotConquered {
-    x: number,
-    y: number,
+    x: bigint,
+    y: bigint,
     previousOwner: Address,
     newOwner: Address
 }
@@ -21,10 +21,10 @@ export interface SlotConqueredSearch {
 }
 
 export interface NokaiMoved {
-    fromX: number,
-    fromY: number,
-    toX: number,
-    toY: number,
+    fromX: bigint,
+    fromY: bigint,
+    toX: bigint,
+    toY: bigint,
     nokaiId: NokaiId,
     owner: Address
 }
@@ -34,25 +34,30 @@ export interface NokaiMovedSearch {
 }
 
 export interface TerritoryExtracted {
-    x: number,
-    y: number,
+    x: bigint,
+    y: bigint,
     by: Address
 }
 
 export interface ExtractorUpgraded {
-    x: number,
-    y: number,
+    x: bigint,
+    y: bigint,
     by: Address
-    level: number
+    level: bigint
 }
 
 interface Methods {
-    nokaiAt: (x: number, y: number) => NokaiId,
-    nokaiPos: (nokaiId: NokaiId) => Position,
-    territoryCount: (user: Address) => number,
-    extractorCostAt: (x: number, y: number) => number,
-    get: (x: number, y: number) => Territory,
-    getBlackHole: (from: number, to: number) => Territory[]
+    maxX: () => bigint,
+    maxY: () => bigint,
+    totalPos: () => bigint,
+    nokaiAt: (x: bigint, y: bigint) => NokaiId,
+    nokaiPos: (nokaiId: NokaiId) => NokaiPos,
+    territoryCount: (user: Address) => bigint,
+    extractorCostAt: (x: bigint, y: bigint) => bigint,
+    get: (x: bigint, y: bigint) => Territory,
+    getFor: (choices: bigint[]) => Territory[],
+    getForRange: (from: bigint, to: bigint) => Territory[],
+    getForBox: (startPos: bigint, endPos: bigint, startLine: bigint, endLine: bigint) => Territory[]
 }
 
 interface Events {

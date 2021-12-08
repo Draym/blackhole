@@ -1,5 +1,5 @@
 export default class NumberUtils {
-    static from(value: any): number {
-        return parseInt(value.toString())
+    static from(value: any): bigint {
+        return BigInt(parseInt(value.toString()))
     }
 }

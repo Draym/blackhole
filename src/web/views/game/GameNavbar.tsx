@@ -2,12 +2,12 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Component} from "react";
 
 type GameNavbarProperties = {
-    networkId: number,
+    networkId: bigint,
     account: string,
 }
 
 type GameNavbarState = {
-    networkId: number,
+    networkId: bigint,
     account: string,
     loading: boolean
 }

@@ -1,6 +1,9 @@
 import {Component} from "react";
 import BlackHole from "../../../game/BlackHole";
 import {BlackHoleContract} from "../../../blockchain/definition/BlackHoleContract";
+import BoardCase from "./BoardCase";
+import NumberUtils from "../../../utils/NumberUtils";
+import {Territory} from "../../../blockchain/definition/data/Territory";
 
 type GameBoardProperties = {
     blackhole: BlackHoleContract
@@ -8,12 +11,16 @@ type GameBoardProperties = {
 
 type GameBoardState = {
     loading: boolean,
-    cameraX: number,
-    cameraY: number,
-    minX: number,
-    minY: number
-    maxX: number,
-    maxY: number
+    cameraX: bigint,
+    cameraY: bigint,
+    caseLength: bigint,
+    cameraMaxX: bigint,
+    cameraMaxY: bigint,
+    minX: bigint,
+    minY: bigint
+    maxX: bigint,
+    maxY: bigint,
+    positions: { [key: number]: Territory }
 }
 
 export default class GameBoard extends Component<GameBoardProperties, GameBoardState> {
@@ -22,107 +29,156 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         super(props)
         this.state = {
             loading: true,
-            cameraX: -50,
-            cameraY: -50,
-            minX: -50,
-            minY: -50,
-            maxX: 500,
-            maxY: 500
+            cameraX: BigInt(0),
+            cameraY: BigInt(0),
+            caseLength: BigInt(100),
+            cameraMaxX: BigInt(14),
+            cameraMaxY: BigInt(8),
+            minX: BigInt(0),
+            minY: BigInt(0),
+            maxX: BigInt(0),
+            maxY: BigInt(0),
+            positions: {}
         }
     }
 
     async componentDidMount() {
-        // BlackHole.getTerritory(this.props.blackhole, 0, 0).then(territory => {
-        //     console.log("0,0: ", territory)
-        // })
-        // BlackHole.getTerritory(this.props.blackhole, 50, 50).then(territory => {
-        //     console.log("50,50: ", territory)
-        // })
-        BlackHole.getBoard(this.props.blackhole, 0, 10).then(territories => {
-            console.log("0 -> 10: ", territories)
-        })
-        this.setState({loading: false})
+        Promise.all([
+            BlackHole.getMaxX(this.props.blackhole),
+            BlackHole.getMaxY(this.props.blackhole)
+        ]).then((values) => {
+            this.setState({maxX: values[0], maxY: values[1]})
+
+            this.drawCamera(BigInt(0), this.state.cameraMaxX + BigInt(1), BigInt(0), this.state.cameraMaxY + BigInt(1)).then(() => {
+                this.setState({loading: false})
+            })
+        });
+
         document.addEventListener("keydown", this._handleKeyDown)
+        document.addEventListener("keyup", this._handleKeyUp)
     }
 
-
     componentWillUnmount() {
-        document.removeEventListener("keydown", this._handleKeyDown)
+        document.addEventListener("keydown", this._handleKeyDown)
+        document.removeEventListener("keyup", this._handleKeyUp)
+    }
+
+    async drawCamera(startPos: bigint, endPos: bigint, startLine: bigint, endLine: bigint) {
+        BlackHole.getTerritoryForBox(this.props.blackhole, startPos, endPos, startLine, endLine).then(territories => {
+            let positions: { [key: number]: Territory } = {}
+            territories.forEach((territory, index) => {
+                const lineCount = endPos - startPos
+                const lineIndex: bigint = (BigInt(index) / lineCount) + startLine
+                const origin: bigint = (lineIndex * this.state.maxX) + startPos
+                const pos: bigint = origin + (BigInt(index) % lineCount)
+                console.log(lineIndex, origin, index, "_", pos, "=>", territory)
+                positions[Number(pos)] = territory
+            })
+            this.setState({positions: {...this.state.positions, ...positions}})
+        })
     }
 
     moveCameraX(value: number) {
-        let posX = this.state.cameraX + value
-        if (posX < this.state.minX) {
-            posX = this.state.minX
+        let posX: bigint = this.state.cameraX + BigInt(value)
+        if (posX < 0) {
+            posX = BigInt(0)
         }
         if (posX > this.state.maxX) {
             posX = this.state.maxX
         }
         this.setState({cameraX: posX})
+        console.log(posX + this.state.cameraMaxX, posX + this.state.cameraMaxX + BigInt(1), this.state.cameraY, this.state.cameraY + this.state.cameraMaxY)
+        if (posX + this.state.cameraMaxX + BigInt(1) < this.state.maxX) {
+            this.drawCamera(posX + this.state.cameraMaxX, posX + this.state.cameraMaxX + BigInt(1), this.state.cameraY, this.state.cameraY + this.state.cameraMaxY + BigInt(1))
+        }
     }
 
     moveCameraY(value: number) {
-        let posY = this.state.cameraY + value
-        if (posY < this.state.minY) {
-            posY = this.state.minY
+        let posY = this.state.cameraY + BigInt(value)
+        if (posY < 0) {
+            posY = BigInt(0)
         }
         if (posY > this.state.maxY) {
             posY = this.state.maxY
         }
         this.setState({cameraY: posY})
+        console.log(this.state.cameraX, this.state.cameraX + this.state.cameraMaxX, posY + this.state.cameraMaxY, posY + this.state.cameraMaxY + BigInt(1))
+        if (posY + this.state.cameraMaxY + BigInt(1) < this.state.maxY - this.state.cameraY) {
+            this.drawCamera(this.state.cameraX, this.state.cameraX + this.state.cameraMaxX + BigInt(1), posY + this.state.cameraMaxY, posY + this.state.cameraMaxY + BigInt(1))
+        }
     }
 
-    _handleKeyDown = (event: { keyCode: number, preventDefault: any }) => {
+    _handleKeyUp = (event: { keyCode: number, preventDefault: any }) => {
         switch (event.keyCode) {
             case 40: // BOTTOM
                 event.preventDefault()
-                this.moveCameraY(100)
+                this.moveCameraY(1)
                 break
             case 39: // RIGHT
                 event.preventDefault()
-                this.moveCameraX(100)
+                this.moveCameraX(1)
                 break
             case 38: // TOP
                 event.preventDefault()
-                this.moveCameraY(-100)
+                this.moveCameraY(-1)
                 break
             case 37: // LEFT
                 event.preventDefault()
-                this.moveCameraX(-100)
+                this.moveCameraX(-1)
                 break
             default:
                 break
         }
     }
 
+    _handleKeyDown = (event: { keyCode: number, preventDefault: any }) => {
+        switch (event.keyCode) {
+            case 40: // BOTTOM
+                event.preventDefault()
+                break
+            case 39: // RIGHT
+                event.preventDefault()
+                break
+            case 38: // TOP
+                event.preventDefault()
+                break
+            case 37: // LEFT
+                event.preventDefault()
+                break
+            default:
+                break
+        }
+    }
+
+    private getCameraPosX(): number {
+        return Number(this.state.cameraX * this.state.caseLength - (this.state.caseLength / BigInt(2)))
+    }
+
+    private getCameraPosY(): number {
+        return Number(this.state.cameraY * this.state.caseLength - (this.state.caseLength / BigInt(2)))
+    }
+
+    private getCameraMaxX(): number {
+        return Number(this.state.cameraMaxX * this.state.caseLength)
+    }
+
+    private getCameraMaxY(): number {
+        return Number(this.state.cameraMaxY * this.state.caseLength)
+    }
+
+
     render() {
-        console.log("camera: ", this.state.cameraX, this.state.cameraY)
-        return <svg width="1400" height="800" viewBox={`${this.state.cameraX} ${this.state.cameraY} 1400 800`} style={{border: "1px solid black", marginBottom: 20}}>
-            <circle cx="-300" cy="0" r="2" fill="purple"/>
-            <circle cx="400" cy="0" r="2" fill="purple"/>
-            <circle cx="1200" cy="0" r="2" fill="purple"/>
-            <circle cx="2500" cy="0" r="2" fill="green"/>
-            <circle cx="3900" cy="0" r="2" fill="green"/>
+        return <div>
+            <h4>Camera [{Number(this.state.cameraX)}, {Number(this.state.cameraY)}] __ Map [{Number(this.state.maxX)}, {Number(this.state.maxY)}]</h4>
+            <svg width={this.getCameraMaxX()} height={this.getCameraMaxY()}
+                 viewBox={`${this.getCameraPosX()} ${this.getCameraPosY()} ${this.getCameraMaxX()} ${this.getCameraMaxY()}`} style={{border: "1px solid black", marginBottom: 20}}>
 
-            <ellipse cx="2000" cy="200" rx="50" ry="50" fill="pink"></ellipse>
-            <ellipse cx="2500" cy="200" rx="50" ry="50" fill="pink"></ellipse>
-            <ellipse cx="3900" cy="200" rx="50" ry="50" fill="pink"></ellipse>
-
-            <ellipse cx="0" cy="0" rx="50" ry="50"></ellipse>
-            <ellipse cx="0" cy="100" rx="50" ry="50" fill="blue"></ellipse>
-            <ellipse cx="0" cy="200" rx="50" ry="50" fill="blue"></ellipse>
-            <ellipse cx="0" cy="300" rx="50" ry="50" fill="blue"></ellipse>
-
-            <ellipse cx="100" cy="100" rx="50" ry="50"></ellipse>
-            <ellipse cx="200" cy="200" rx="50" ry="50"></ellipse>
-            <ellipse cx="300" cy="300" rx="50" ry="50"></ellipse>
-            <ellipse cx="400" cy="400" rx="50" ry="50"></ellipse>
-
-            <circle cx="0" cy="0" r="2" fill="red"/>
-            <circle cx="50" cy="50" r="2" fill="red"/>
-            <circle cx="100" cy="100" r="2" fill="red"/>
-            <circle cx="200" cy="200" r="2" fill="red"/>
-            <circle cx="300" cy="300" r="2" fill="red"/>
-        </svg>
+                {Object.keys(this.state.positions).map((key, i) => {
+                    const index = NumberUtils.from(key)
+                    return <BoardCase x={index % this.state.maxX} y={index / this.state.maxX} key={i}/>
+                })
+                }
+            </svg>
+        </div>
     }
 }

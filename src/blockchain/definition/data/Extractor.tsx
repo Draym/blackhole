@@ -1,5 +1,5 @@
 export interface Extractor {
-    level: number,
-    cost: number,
-    lastExtract: number,
+    level: bigint,
+    cost: bigint,
+    lastExtract: bigint,
 }

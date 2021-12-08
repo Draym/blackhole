@@ -13,7 +13,7 @@ interface GameViewProperties extends RouteComponentProps {
 
 type GameViewState = {
     blackhole: BlackHoleContract | null,
-    networkId: number | null,
+    networkId: bigint | null,
     account: string | null,
     walletConnected: boolean,
     loading: boolean
@@ -75,7 +75,7 @@ class GameView extends Component<GameViewProperties, GameViewState> {
 
     async listenNetworkChanges() {
         console.log("##listen network change")
-        Web3Utils.getEth().on('chainChanged', (chainId: number) => {
+        Web3Utils.getEth().on('chainChanged', (chainId: bigint) => {
             console.log("network changed", chainId)
             this.setState({networkId: chainId})
         })
