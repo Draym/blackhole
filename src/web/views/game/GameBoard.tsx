@@ -287,22 +287,33 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
 
     render() {
         return <div>
-            <h6>Camera [{Number(this.state.camera.x)}, {Number(this.state.camera.y)}] __ Map [{Number(this.state.board.casesX)}, {Number(this.state.board.casesY)}]</h6>
-            <svg width={this.state.canvas.width} height={this.state.canvas.height} style={{border: "1px solid grey"}}>
+            <div className="row">
+                <div className="col-md-9">
+                    <h6>Camera [{Number(this.state.camera.x)}, {Number(this.state.camera.y)}] __ Map [{Number(this.state.board.casesX)}, {Number(this.state.board.casesY)}]</h6>
+                </div>
+                <div className="col-md-3">
+                    {this.state.boxFocused != null && <h6>Position [{Number(this.state.boxFocused.x)}, {Number(this.state.boxFocused.y)}]</h6>}
+                </div>
+            </div>
+            <div className="row">
+                <div className="col-md-12">
+                    <svg width={this.state.canvas.width} height={this.state.canvas.height} style={{border: "1px solid grey"}}>
 
-                {this.getCameraView().map((data, index) => {
-                    return <BoardCase key={index} className={this.getClassName(BigInt(data.key))}
-                                      index={BigInt(data.key)} x={data.x} y={data.y} posX={data.posX} posY={data.posY} size={Number(this.state.canvas.caseLength)}
-                                      territory={data.territory}
-                                      onClick={this.boxClicked}
-                                      onMouseOver={this.boxHover}/>
-                })
-                }
+                        {this.getCameraView().map((data, index) => {
+                            return <BoardCase key={index} className={this.getClassName(BigInt(data.key))}
+                                              index={BigInt(data.key)} x={data.x} y={data.y} posX={data.posX} posY={data.posY} size={Number(this.state.canvas.caseLength)}
+                                              territory={data.territory}
+                                              onClick={this.boxClicked}
+                                              onMouseOver={this.boxHover}/>
+                        })
+                        }
 
-                {this.allowedDistanceForTarget() &&
-                <path d={this.getPath(this.state.boxSelected!!, this.state.boxFocused!!)}/>
-                }
-            </svg>
+                        {this.allowedDistanceForTarget() &&
+                        <path d={this.getPath(this.state.boxSelected!!, this.state.boxFocused!!)}/>
+                        }
+                    </svg>
+                </div>
+            </div>
         </div>
     }
 }
