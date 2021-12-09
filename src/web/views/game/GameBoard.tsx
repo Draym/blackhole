@@ -29,8 +29,8 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         super(props)
         this.state = {
             loading: true,
-            cameraX: BigInt(0),
-            cameraY: BigInt(0),
+            cameraX: BigInt(1),
+            cameraY: BigInt(1),
             caseLength: BigInt(100),
             cameraMaxX: BigInt(14),
             cameraMaxY: BigInt(8),
@@ -49,7 +49,7 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         ]).then((values) => {
             this.setState({maxX: values[0], maxY: values[1]})
 
-            this.drawCamera(BigInt(0), this.state.cameraMaxX + BigInt(1), BigInt(0), this.state.cameraMaxY + BigInt(1)).then(() => {
+            this.drawCamera(BigInt(0), this.state.cameraMaxX + BigInt(1), BigInt(0), this.state.cameraMaxY + BigInt(5)).then(() => {
                 this.setState({loading: false})
             })
         });
@@ -87,9 +87,9 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
             posX = this.state.maxX
         }
         this.setState({cameraX: posX})
-        console.log(posX + this.state.cameraMaxX, posX + this.state.cameraMaxX + BigInt(1), this.state.cameraY, this.state.cameraY + this.state.cameraMaxY)
+        console.log(posX + this.state.cameraMaxX, posX + this.state.cameraMaxX + BigInt(1), this.state.cameraY, this.state.cameraY + this.state.cameraMaxY+ BigInt(5))
         if (posX + this.state.cameraMaxX + BigInt(1) < this.state.maxX) {
-            this.drawCamera(posX + this.state.cameraMaxX, posX + this.state.cameraMaxX + BigInt(1), this.state.cameraY, this.state.cameraY + this.state.cameraMaxY + BigInt(1))
+            this.drawCamera(posX + this.state.cameraMaxX, posX + this.state.cameraMaxX + BigInt(1), this.state.cameraY, this.state.cameraY + this.state.cameraMaxY + BigInt(5))
         }
     }
 
@@ -151,11 +151,11 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
     }
 
     private getCameraPosX(): number {
-        return Number(this.state.cameraX * this.state.caseLength - (this.state.caseLength / BigInt(2)))
+        return Number(this.state.cameraX * this.state.caseLength)
     }
 
     private getCameraPosY(): number {
-        return Number(this.state.cameraY * this.state.caseLength - (this.state.caseLength / BigInt(2)))
+        return Number(this.state.cameraY * this.state.caseLength)
     }
 
     private getCameraMaxX(): number {
@@ -168,6 +168,7 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
 
 
     render() {
+        console.log("DRAW AGAIN")
         return <div>
             <h4>Camera [{Number(this.state.cameraX)}, {Number(this.state.cameraY)}] __ Map [{Number(this.state.maxX)}, {Number(this.state.maxY)}]</h4>
             <svg width={this.getCameraMaxX()} height={this.getCameraMaxY()}
@@ -175,7 +176,7 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
 
                 {Object.keys(this.state.positions).map((key, i) => {
                     const index = NumberUtils.from(key)
-                    return <BoardCase x={index % this.state.maxX} y={index / this.state.maxX} key={i}/>
+                    return <BoardCase x={index % this.state.maxX} y={index / this.state.maxX} size={this.state.caseLength} key={i} onClick={null} onMouseEnter={null} onMouseLeave={null} onMouseOver={null}/>
                 })
                 }
             </svg>
