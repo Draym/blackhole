@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/blackhole/static/css/main.acd8baef.chunk.css",
-    "main.js": "/blackhole/static/js/main.4aab5d8d.chunk.js",
-    "main.js.map": "/blackhole/static/js/main.4aab5d8d.chunk.js.map",
+    "main.css": "/blackhole/static/css/main.abf10e97.chunk.css",
+    "main.js": "/blackhole/static/js/main.35004143.chunk.js",
+    "main.js.map": "/blackhole/static/js/main.35004143.chunk.js.map",
     "runtime-main.js": "/blackhole/static/js/runtime-main.ebfcdc9f.js",
     "runtime-main.js.map": "/blackhole/static/js/runtime-main.ebfcdc9f.js.map",
-    "static/js/2.34bf9cee.chunk.js": "/blackhole/static/js/2.34bf9cee.chunk.js",
-    "static/js/2.34bf9cee.chunk.js.map": "/blackhole/static/js/2.34bf9cee.chunk.js.map",
+    "static/js/2.93c6145b.chunk.js": "/blackhole/static/js/2.93c6145b.chunk.js",
+    "static/js/2.93c6145b.chunk.js.map": "/blackhole/static/js/2.93c6145b.chunk.js.map",
     "static/js/3.e1d9ebf5.chunk.js": "/blackhole/static/js/3.e1d9ebf5.chunk.js",
     "static/js/3.e1d9ebf5.chunk.js.map": "/blackhole/static/js/3.e1d9ebf5.chunk.js.map",
     "index.html": "/blackhole/index.html",
-    "static/css/main.acd8baef.chunk.css.map": "/blackhole/static/css/main.acd8baef.chunk.css.map",
-    "static/js/2.34bf9cee.chunk.js.LICENSE.txt": "/blackhole/static/js/2.34bf9cee.chunk.js.LICENSE.txt"
+    "static/css/main.abf10e97.chunk.css.map": "/blackhole/static/css/main.abf10e97.chunk.css.map",
+    "static/js/2.93c6145b.chunk.js.LICENSE.txt": "/blackhole/static/js/2.93c6145b.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.ebfcdc9f.js",
-    "static/js/2.34bf9cee.chunk.js",
-    "static/css/main.acd8baef.chunk.css",
-    "static/js/main.4aab5d8d.chunk.js"
+    "static/js/2.93c6145b.chunk.js",
+    "static/css/main.abf10e97.chunk.css",
+    "static/js/main.35004143.chunk.js"
   ]
 }
