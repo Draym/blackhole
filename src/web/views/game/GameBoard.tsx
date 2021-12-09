@@ -2,24 +2,61 @@ import {Component} from "react";
 import BlackHole from "../../../game/BlackHole";
 import {BlackHoleContract} from "../../../blockchain/definition/BlackHoleContract";
 import BoardCase from "./BoardCase";
-import NumberUtils from "../../../utils/NumberUtils";
 import {Territory} from "../../../blockchain/definition/data/Territory";
+import MathUtils from "../../../utils/MathUtils";
 
+class Canvas {
+    width: number = 1400
+    height: number = 800
+    caseLength: bigint = BigInt(100)
+}
+
+class Camera {
+    x: bigint = BigInt(0)
+    y: bigint = BigInt(0)
+    totalX: bigint = BigInt(14)
+    totalY: bigint = BigInt(12)
+
+    setX(x: bigint): Camera {
+        this.x = x;
+        return this
+    }
+
+    setY(y: bigint): Camera {
+        this.y = y;
+        return this
+    }
+}
+
+class Board {
+    casesX: bigint
+    casesY: bigint
+    total: bigint
+
+    constructor(x: bigint, y: bigint) {
+        this.casesX = x;
+        this.casesY = y;
+        this.total = x * y
+    }
+}
+
+type CameraPos = {
+    key: number,
+    x: bigint,
+    y: bigint,
+    posX: number,
+    posY: number,
+    territory: Territory
+}
 type GameBoardProperties = {
     blackhole: BlackHoleContract
 }
 
 type GameBoardState = {
     loading: boolean,
-    cameraX: bigint,
-    cameraY: bigint,
-    caseLength: bigint,
-    cameraMaxX: bigint,
-    cameraMaxY: bigint,
-    minX: bigint,
-    minY: bigint
-    maxX: bigint,
-    maxY: bigint,
+    canvas: Canvas,
+    camera: Camera,
+    board: Board,
     positions: { [key: number]: Territory }
 }
 
@@ -29,15 +66,9 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         super(props)
         this.state = {
             loading: true,
-            cameraX: BigInt(1),
-            cameraY: BigInt(1),
-            caseLength: BigInt(100),
-            cameraMaxX: BigInt(14),
-            cameraMaxY: BigInt(8),
-            minX: BigInt(0),
-            minY: BigInt(0),
-            maxX: BigInt(0),
-            maxY: BigInt(0),
+            canvas: new Canvas(),
+            camera: new Camera(),
+            board: new Board(BigInt(0), BigInt(0)),
             positions: {}
         }
     }
@@ -47,9 +78,9 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
             BlackHole.getMaxX(this.props.blackhole),
             BlackHole.getMaxY(this.props.blackhole)
         ]).then((values) => {
-            this.setState({maxX: values[0], maxY: values[1]})
+            this.setState({board: new Board(values[0], values[1])})
 
-            this.drawCamera(BigInt(0), this.state.cameraMaxX + BigInt(1), BigInt(0), this.state.cameraMaxY + BigInt(5)).then(() => {
+            this.loadDataForCamera(BigInt(0), this.state.camera.totalX + BigInt(1), BigInt(0), this.state.camera.totalY + BigInt(1)).then(() => {
                 this.setState({loading: false})
             })
         });
@@ -63,48 +94,74 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         document.removeEventListener("keyup", this._handleKeyUp)
     }
 
-    async drawCamera(startPos: bigint, endPos: bigint, startLine: bigint, endLine: bigint) {
+    needQueryData(startPos: bigint, endPos: bigint, startLine: bigint, endLine: bigint): boolean {
+        for (let y = startLine; y < endLine; y++) {
+            for (let x = startPos; x < endPos; x++) {
+                const key: number = Number(y * this.state.board.casesX + x)
+                if (this.state.positions[key] === undefined) {
+                    return true;
+                }
+            }
+        }
+        return false
+    }
+
+    async loadDataForCamera(startPos: bigint, endPos: bigint, startLine: bigint, endLine: bigint) {
+        if (startPos > endPos) {
+            let tmp = startPos
+            startPos = endPos
+            endPos = tmp
+        }
+        if (startLine > endLine) {
+            let tmp = startLine
+            startLine = endLine
+            endLine = tmp
+        }
+        if (!this.needQueryData(startPos, endPos, startLine, endLine))
+            return
+        console.log("LOAD QUERY")
         BlackHole.getTerritoryForBox(this.props.blackhole, startPos, endPos, startLine, endLine).then(territories => {
             let positions: { [key: number]: Territory } = {}
             territories.forEach((territory, index) => {
                 const lineCount = endPos - startPos
                 const lineIndex: bigint = (BigInt(index) / lineCount) + startLine
-                const origin: bigint = (lineIndex * this.state.maxX) + startPos
+                const origin: bigint = (lineIndex * this.state.board.casesX) + startPos
                 const pos: bigint = origin + (BigInt(index) % lineCount)
-                console.log(lineIndex, origin, index, "_", pos, "=>", territory)
                 positions[Number(pos)] = territory
             })
+            // console.log("response:", positions)
+            // console.log("BOARD:", {...this.state.positions, ...positions})
             this.setState({positions: {...this.state.positions, ...positions}})
         })
     }
 
     moveCameraX(value: number) {
-        let posX: bigint = this.state.cameraX + BigInt(value)
+        let max = this.state.board.casesX - this.state.camera.totalX
+        let posX: bigint = this.state.camera.x + BigInt(value)
         if (posX < 0) {
             posX = BigInt(0)
         }
-        if (posX > this.state.maxX) {
-            posX = this.state.maxX
+        if (posX > max) {
+            posX = max
         }
-        this.setState({cameraX: posX})
-        console.log(posX + this.state.cameraMaxX, posX + this.state.cameraMaxX + BigInt(1), this.state.cameraY, this.state.cameraY + this.state.cameraMaxY+ BigInt(5))
-        if (posX + this.state.cameraMaxX + BigInt(1) < this.state.maxX) {
-            this.drawCamera(posX + this.state.cameraMaxX, posX + this.state.cameraMaxX + BigInt(1), this.state.cameraY, this.state.cameraY + this.state.cameraMaxY + BigInt(5))
+        this.setState({camera: this.state.camera.setX(posX)})
+        if (posX + this.state.camera.totalX + BigInt(value) < max) {
+            this.loadDataForCamera(posX + this.state.camera.totalX, posX + this.state.camera.totalX + BigInt(value), this.state.camera.y, this.state.camera.y + this.state.camera.totalY)
         }
     }
 
     moveCameraY(value: number) {
-        let posY = this.state.cameraY + BigInt(value)
+        let max = this.state.board.casesX - this.state.camera.totalX
+        let posY: bigint = this.state.camera.y + BigInt(value)
         if (posY < 0) {
             posY = BigInt(0)
         }
-        if (posY > this.state.maxY) {
-            posY = this.state.maxY
+        if (posY > max) {
+            posY = max
         }
-        this.setState({cameraY: posY})
-        console.log(this.state.cameraX, this.state.cameraX + this.state.cameraMaxX, posY + this.state.cameraMaxY, posY + this.state.cameraMaxY + BigInt(1))
-        if (posY + this.state.cameraMaxY + BigInt(1) < this.state.maxY - this.state.cameraY) {
-            this.drawCamera(this.state.cameraX, this.state.cameraX + this.state.cameraMaxX + BigInt(1), posY + this.state.cameraMaxY, posY + this.state.cameraMaxY + BigInt(1))
+        this.setState({camera: this.state.camera.setY(posY)})
+        if (posY + this.state.camera.totalY + BigInt(value) < max) {
+            this.loadDataForCamera(this.state.camera.x, this.state.camera.x + this.state.camera.totalX, posY + this.state.camera.totalY, posY + this.state.camera.totalY + BigInt(value))
         }
     }
 
@@ -150,33 +207,49 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         }
     }
 
-    private getCameraPosX(): number {
-        return Number(this.state.cameraX * this.state.caseLength)
-    }
+    private getCameraView(): CameraPos[] {
+        const result: CameraPos[] = []
+        const originX = this.state.camera.x === BigInt(0)
+        const originY = this.state.camera.y === BigInt(0)
 
-    private getCameraPosY(): number {
-        return Number(this.state.cameraY * this.state.caseLength)
-    }
+        const camX = originX ? this.state.camera.x : this.state.camera.x - BigInt(1)
+        const camY = originY ? this.state.camera.y : this.state.camera.y - BigInt(1)
+        const maxX = camX + this.state.camera.totalX + BigInt(1)
+        const maxY = camY + this.state.camera.totalY + BigInt(1)
 
-    private getCameraMaxX(): number {
-        return Number(this.state.cameraMaxX * this.state.caseLength)
-    }
+        for (let y = camY; y < maxY; y++) {
+            for (let x = camX; x < maxX; x++) {
 
-    private getCameraMaxY(): number {
-        return Number(this.state.cameraMaxY * this.state.caseLength)
-    }
+                const key: number = Number(y * this.state.board.casesX + x)
 
+                const posY: number = Number(y - camY) - (originY ? 0 : 1)
+                const posX: number = Number(x - camX) - (originX ? 0 : 1)
+
+                let adjustX: number = 0
+                if (MathUtils.isNotEven2(posY) || MathUtils.isNotEven(this.state.camera.y))
+                    adjustX = 0.5
+                if (MathUtils.isNotEven2(posY) && MathUtils.isNotEven(this.state.camera.y))
+                    adjustX = 0
+
+
+                result.push({key: key, territory: this.state.positions[key], posX: posX + adjustX, posY: posY, x: x, y: y,})
+            }
+        }
+        return result;
+    }
 
     render() {
-        console.log("DRAW AGAIN")
         return <div>
-            <h4>Camera [{Number(this.state.cameraX)}, {Number(this.state.cameraY)}] __ Map [{Number(this.state.maxX)}, {Number(this.state.maxY)}]</h4>
-            <svg width={this.getCameraMaxX()} height={this.getCameraMaxY()}
-                 viewBox={`${this.getCameraPosX()} ${this.getCameraPosY()} ${this.getCameraMaxX()} ${this.getCameraMaxY()}`} style={{border: "1px solid black", marginBottom: 20}}>
+            <h4>Camera [{Number(this.state.camera.x)}, {Number(this.state.camera.y)}] __ Map [{Number(this.state.board.casesX)}, {Number(this.state.board.casesY)}]</h4>
+            <svg width={this.state.canvas.width} height={this.state.canvas.height} style={{border: "1px solid black", marginBottom: 20}}>
 
-                {Object.keys(this.state.positions).map((key, i) => {
-                    const index = NumberUtils.from(key)
-                    return <BoardCase x={index % this.state.maxX} y={index / this.state.maxX} size={this.state.caseLength} key={i} onClick={null} onMouseEnter={null} onMouseLeave={null} onMouseOver={null}/>
+                {this.getCameraView().map((data, index) => {
+                    return <BoardCase key={index} index={BigInt(data.key)} x={data.x} y={data.y} posX={data.posX} posY={data.posY} size={Number(this.state.canvas.caseLength)}
+                                      territory={data.territory}
+                                      onClick={null}
+                                      onMouseEnter={null}
+                                      onMouseLeave={null}
+                                      onMouseOver={null}/>
                 })
                 }
             </svg>

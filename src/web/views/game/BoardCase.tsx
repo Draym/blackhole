@@ -1,21 +1,23 @@
 import {Component} from "react";
 import {Point} from "./data/Point";
+import {Territory} from "../../../blockchain/definition/data/Territory";
 
 type TerritoryProperties = {
     x: bigint,
     y: bigint,
-    size: bigint,
-    onClick: ((x: bigint, y: bigint) => void) | null,
-    onMouseEnter: ((x: bigint, y: bigint) => void) | null,
-    onMouseLeave: ((x: bigint, y: bigint) => void) | null,
-    onMouseOver: ((x: bigint, y: bigint) => void) | null,
+    posX: number,
+    posY: number,
+    size: number,
+    index: bigint,
+    territory: Territory,
+    onClick: ((index: bigint) => void) | null,
+    onMouseEnter: ((index: bigint) => void) | null,
+    onMouseLeave: ((index: bigint) => void) | null,
+    onMouseOver: ((index: bigint) => void) | null,
 }
 
 type TerritoryState = {
     loading: boolean,
-    x: number,
-    y: number,
-    size: number,
 }
 
 export default class BoardCase extends Component<TerritoryProperties, TerritoryState> {
@@ -34,9 +36,6 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
         super(props)
         this.state = {
             loading: true,
-            x: Number(props.x),
-            y: Number(props.y),
-            size: Number(props.size),
         }
     }
 
@@ -46,56 +45,48 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
 
     onMouseEnter(event: any) {
         if (this.props.onMouseEnter) {
-            this.props.onMouseEnter(this.props.x, this.props.y);
+            this.props.onMouseEnter(this.props.index);
         }
     }
 
     onMouseOver(event: any) {
         if (this.props.onMouseOver) {
-            this.props.onMouseOver(this.props.x, this.props.y);
+            this.props.onMouseOver(this.props.index);
         }
     }
 
     onMouseLeave(event: any) {
         if (this.props.onMouseLeave) {
-            this.props.onMouseLeave(this.props.x, this.props.y);
+            this.props.onMouseLeave(this.props.index);
         }
     }
 
     onClick(event: any) {
         if (this.props.onClick) {
-            this.props.onClick(this.props.x, this.props.y);
+            this.props.onClick(this.props.index);
         }
     }
 
     calculateCoordinates(): Point[] {
         return BoardCase.corners.map(point => {
-            let interval = (this.state.y % 2 === 1 ? 0.5 : 0)
            return new Point(
-               (point.x * this.state.size / 100) + ((this.state.x + interval) * this.state.size),
-               (point.y * this.state.size / 100) + (this.state.y* this.state.size) - (BoardCase.spacing * this.state.y)
+               (point.x * this.props.size / 100) + (this.props.posX  * this.props.size),
+               (point.y * this.props.size / 100) + (this.props.posY * this.props.size) - (BoardCase.spacing * this.props.posY)
         )
         })
     }
 
     render() {
-        const x = this.state.x
-        const y = this.state.y
         const points = this.calculateCoordinates().map( point => `${point.x},${point.y}`).join(" ")
-
-        console.log(`points: [${x}, ${y}]`, points)
-        return <g
-            className={'hexagon-group'}
+        return <g className={'hexagon-group'}
             onMouseEnter={e => this.onMouseEnter(e)}
             onMouseOver={e => this.onMouseOver(e)}
             onMouseLeave={e => this.onMouseLeave(e)}
             onClick={e => this.onClick(e)}>
             <g className="hexagon">
-                <text fill="black">{this.state.x}, {this.state.y}</text>
-                <polygon points={points}></polygon>
+                <text x={this.props.posX * this.props.size + 24} y={(this.props.posY * this.props.size) - (BoardCase.spacing * this.props.posY) + 55} fill="black">{Number(this.props.x)}_{Number(this.props.y)}</text>
+                <polygon points={points}/>
             </g>
         </g>
-        //<ellipse cx={x * 100} cy={y * 100} rx="50" ry="50" fill={color}></ellipse>
-        //<rect x={x * 100} y={y * 100} width="100" height="100" fill={color}></rect>
     }
 }
