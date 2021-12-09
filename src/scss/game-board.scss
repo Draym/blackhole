@@ -28,9 +28,10 @@ svg g text {
   fill: black;
 }
 svg path {
+  pointer-events:none;
   fill: none;
   stroke: #7be3f6;
-  stroke-width: 0.2em;
+  stroke-width: 1em;
   stroke-opacity: 0.7;
   stroke-linecap: round;
   stroke-linejoin: round;

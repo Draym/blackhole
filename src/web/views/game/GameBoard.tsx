@@ -4,6 +4,7 @@ import {BlackHoleContract} from "../../../blockchain/definition/BlackHoleContrac
 import BoardCase from "./BoardCase";
 import {Territory} from "../../../blockchain/definition/data/Territory";
 import MathUtils from "../../../utils/MathUtils";
+import {Position} from "./data/Position";
 
 class Canvas {
     width: number = 1400
@@ -57,6 +58,8 @@ type GameBoardState = {
     canvas: Canvas,
     camera: Camera,
     board: Board,
+    boxSelected: Position | null,
+    boxFocused: Position | null,
     positions: { [key: number]: Territory }
 }
 
@@ -69,8 +72,13 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
             canvas: new Canvas(),
             camera: new Camera(),
             board: new Board(BigInt(0), BigInt(0)),
-            positions: {}
+            positions: {},
+            boxSelected: null,
+            boxFocused: null
         }
+        this.boxClicked = this.boxClicked.bind(this)
+        this.boxUnSelect = this.boxUnSelect.bind(this)
+        this.boxHover = this.boxHover.bind(this)
     }
 
     async componentDidMount() {
@@ -238,19 +246,61 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         return result;
     }
 
+    boxClicked(pos: Position) {
+        if (this.state.boxSelected?.index === pos.index) {
+            this.boxUnSelect()
+        } else {
+            this.setState({boxSelected: pos})
+        }
+    }
+
+    boxUnSelect() {
+        this.setState({boxSelected: null})
+    }
+
+    boxHover(pos: Position) {
+        this.setState({boxFocused: pos})
+    }
+
+    getClassName(index: bigint): string {
+        if (this.state.boxSelected?.index === index) {
+            return "box-selected"
+        } else if (this.state.boxFocused?.index === index) {
+            return "box-foxused"
+        } else {
+            return ""
+        }
+    }
+
+    allowedDistanceForTarget(): boolean {
+        if (this.state.boxSelected !== null && this.state.boxFocused !== null) {
+            let diffX = this.state.boxSelected.posX - this.state.boxFocused.posX
+            let diffY = this.state.boxSelected.posY - this.state.boxFocused.posY
+            return diffX <= 1 && diffX >= -1 && diffY <= 1 && diffY >= -1
+        }
+        return false;
+    }
+
+    getPath(pos1: Position, pos2: Position): string {
+        return `M${(pos1.posX * 100) + 50} ${(pos1.posY * 100) + 50 - (BoardCase.spacing * pos1.posY)} L${(pos2.posX * 100) + 50} ${(pos2.posY * 100) + 50 - (BoardCase.spacing * pos2.posY)}`
+    }
+
     render() {
         return <div>
-            <h4>Camera [{Number(this.state.camera.x)}, {Number(this.state.camera.y)}] __ Map [{Number(this.state.board.casesX)}, {Number(this.state.board.casesY)}]</h4>
-            <svg width={this.state.canvas.width} height={this.state.canvas.height} style={{border: "1px solid black", marginBottom: 20}}>
+            <h6>Camera [{Number(this.state.camera.x)}, {Number(this.state.camera.y)}] __ Map [{Number(this.state.board.casesX)}, {Number(this.state.board.casesY)}]</h6>
+            <svg width={this.state.canvas.width} height={this.state.canvas.height} style={{border: "1px solid grey"}}>
 
                 {this.getCameraView().map((data, index) => {
-                    return <BoardCase key={index} index={BigInt(data.key)} x={data.x} y={data.y} posX={data.posX} posY={data.posY} size={Number(this.state.canvas.caseLength)}
+                    return <BoardCase key={index} className={this.getClassName(BigInt(data.key))}
+                                      index={BigInt(data.key)} x={data.x} y={data.y} posX={data.posX} posY={data.posY} size={Number(this.state.canvas.caseLength)}
                                       territory={data.territory}
-                                      onClick={null}
-                                      onMouseEnter={null}
-                                      onMouseLeave={null}
-                                      onMouseOver={null}/>
+                                      onClick={this.boxClicked}
+                                      onMouseOver={this.boxHover}/>
                 })
+                }
+
+                {this.allowedDistanceForTarget() &&
+                <path d={this.getPath(this.state.boxSelected!!, this.state.boxFocused!!)}/>
                 }
             </svg>
         </div>
