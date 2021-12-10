@@ -40,6 +40,7 @@ interface Methods {
     /* PLAYER */
     absorb: (nokaiId: NokaiId, targetId: NokaiId, upgradeChoice: StatType) => any,
     listFor: (owner: Address) => bigint[]
+    tokenURI: (nokaiId: NokaiId) => string
 }
 
 interface Events {

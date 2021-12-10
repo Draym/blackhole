@@ -2,14 +2,19 @@ import {Component} from "react";
 import {Address, NokaiId} from "../../../blockchain/definition/types";
 import {NokaiContract} from "../../../blockchain/definition/NokaiContract";
 import Nokai from "../../../game/Nokai";
+import HttpUtils from "../../../utils/HttpUtils";
+import {NokaiConfig} from "./data/NokaiConfig";
+import {NfStorage} from "../../../utils/NftStorage";
 
 class NokaiData {
     nokaiId: NokaiId
-    imgUrl: URL
+    imageUrl: URL
+    name: string
 
-    constructor(nokaiId: NokaiId, imgUrl: URL) {
+    constructor(nokaiId: NokaiId, imageUrl: URL, name: string) {
         this.nokaiId = nokaiId
-        this.imgUrl = imgUrl
+        this.imageUrl = imageUrl
+        this.name = name
     }
 }
 
@@ -20,7 +25,7 @@ type NokaiInventoryProperties = {
 }
 
 type NokaiInventoryState = {
-    nokais: NokaiData[]
+    nokais: { [key: string]: NokaiData }
     loading: boolean
 }
 
@@ -28,7 +33,7 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
     constructor(props: NokaiInventoryProperties) {
         super(props)
         this.state = {
-            nokais: [],
+            nokais: {},
             loading: true
         }
     }
@@ -46,13 +51,24 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
     async loadNokais() {
         Nokai.listFor(this.props.nokai, this.props.account).then(nokaiIds => {
             console.log("nokais: ", nokaiIds)
+
+            nokaiIds.forEach(nokaiId => {
+                HttpUtils.get(NfStorage.config + `/${nokaiId}.json`, (result: NokaiConfig) => {
+                    const nokais = this.state.nokais
+                    nokais[nokaiId.toString()] = new NokaiData(nokaiId, new URL(NfStorage.img + `/${result.image}`), result.name)
+                    this.setState({nokais: nokais})
+                }, null)
+            })
             this.setState({loading: false})
         })
     }
 
     render() {
         return <div>
-
+            {!this.state.loading && Object.keys(this.state.nokais).map((key, index) => {
+                return <img style={{border: "1px solid grey"}} src={this.state.nokais[key].imageUrl.toString()} alt="nokai" key={index}/>
+            })
+            }
         </div>
     }
 }

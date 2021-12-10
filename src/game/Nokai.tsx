@@ -36,6 +36,10 @@ export default class Nokai {
         return await Lina.call(contract.methods.listFor(owner))
     }
 
+    static async tokenURI(contract: NokaiContract, nokaiId: NokaiId): Promise<string> {
+        return await Lina.call(contract.methods.tokenURI(nokaiId))
+    }
+
     static subscribeNokaiBorn(contract: NokaiContract, search: NokaiBornSearch, callback: (data: NokaiBorn) => any) {
         contract.events.NokaiBorn(search).on('data', callback)
     }

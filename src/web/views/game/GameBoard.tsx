@@ -8,7 +8,7 @@ import {Position} from "./data/Position";
 
 class Canvas {
     width: number = 1400
-    height: number = 800
+    height: number = 750
     caseLength: bigint = BigInt(100)
 }
 
@@ -77,7 +77,7 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         this.state = {
             loading: true,
             canvas: new Canvas(),
-            camera: new Camera(BigInt(0), BigInt(0), BigInt(14), BigInt(12)),
+            camera: new Camera(BigInt(0), BigInt(0), BigInt(14), BigInt(11)),
             board: new Board(BigInt(0), BigInt(0)),
             positions: {},
             boxSelected: null,
