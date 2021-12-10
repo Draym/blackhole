@@ -13,10 +13,17 @@ class Canvas {
 }
 
 class Camera {
-    x: bigint = BigInt(0)
-    y: bigint = BigInt(0)
-    totalX: bigint = BigInt(14)
-    totalY: bigint = BigInt(12)
+    x: bigint
+    y: bigint
+    totalX: bigint
+    totalY: bigint
+
+    constructor(x: bigint, y: bigint, totalX: bigint, totalY: bigint) {
+        this.x = x;
+        this.y = y;
+        this.totalX = totalX;
+        this.totalY = totalY;
+    }
 
     setX(x: bigint): Camera {
         this.x = x;
@@ -70,7 +77,7 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         this.state = {
             loading: true,
             canvas: new Canvas(),
-            camera: new Camera(),
+            camera: new Camera(BigInt(0), BigInt(0), BigInt(14), BigInt(12)),
             board: new Board(BigInt(0), BigInt(0)),
             positions: {},
             boxSelected: null,
@@ -125,9 +132,13 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
             startLine = endLine
             endLine = tmp
         }
+        startPos = startPos >= BigInt(0) ? startPos : BigInt(0)
+        startLine = startPos >= BigInt(0) ? startLine : BigInt(0)
+        endPos = endPos < this.state.board.casesX ? endPos : this.state.board.casesX
+        endLine = endLine < this.state.board.casesY ? endLine : this.state.board.casesY
         if (!this.needQueryData(startPos, endPos, startLine, endLine))
             return
-        console.log("LOAD QUERY")
+        console.log("LOAD QUERY:", startPos, endPos, startLine, endLine)
         BlackHole.getTerritoryForBox(this.props.blackhole, startPos, endPos, startLine, endLine).then(territories => {
             let positions: { [key: number]: Territory } = {}
             territories.forEach((territory, index) => {
@@ -137,14 +148,14 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
                 const pos: bigint = origin + (BigInt(index) % lineCount)
                 positions[Number(pos)] = territory
             })
-            // console.log("response:", positions)
-            // console.log("BOARD:", {...this.state.positions, ...positions})
+            //console.log("response:", positions)
+            console.log("BOARD:", {...this.state.positions, ...positions})
             this.setState({positions: {...this.state.positions, ...positions}})
         })
     }
 
     moveCameraX(value: number) {
-        let max = this.state.board.casesX - this.state.camera.totalX
+        let max = this.state.board.casesX - this.state.camera.totalX > BigInt(0) ? this.state.board.casesX - this.state.camera.totalX : BigInt(0)
         let posX: bigint = this.state.camera.x + BigInt(value)
         if (posX < 0) {
             posX = BigInt(0)
@@ -159,7 +170,7 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
     }
 
     moveCameraY(value: number) {
-        let max = this.state.board.casesX - this.state.camera.totalX
+        let max = this.state.board.casesY - this.state.camera.totalY > BigInt(0) ? this.state.board.casesY - this.state.camera.totalY : BigInt(0)
         let posY: bigint = this.state.camera.y + BigInt(value)
         if (posY < 0) {
             posY = BigInt(0)
@@ -222,25 +233,30 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
 
         const camX = originX ? this.state.camera.x : this.state.camera.x - BigInt(1)
         const camY = originY ? this.state.camera.y : this.state.camera.y - BigInt(1)
-        const maxX = camX + this.state.camera.totalX + BigInt(1)
-        const maxY = camY + this.state.camera.totalY + BigInt(1)
+        let maxX = camX + this.state.camera.totalX + BigInt(1)
+        let maxY = camY + this.state.camera.totalY + BigInt(1)
+
+        maxX = maxX < this.state.board.casesX ? maxX : this.state.board.casesX
+        maxY = maxY < this.state.board.casesY ? maxY : this.state.board.casesY
 
         for (let y = camY; y < maxY; y++) {
             for (let x = camX; x < maxX; x++) {
 
                 const key: number = Number(y * this.state.board.casesX + x)
 
-                const posY: number = Number(y - camY) - (originY ? 0 : 1)
-                const posX: number = Number(x - camX) - (originX ? 0 : 1)
+                //console.log(`[${key}] (${x}, ${y}): ${this.state.positions[key]}`)
+                if (this.state.positions[key] !== undefined) {
+                    const posY: number = Number(y - camY) - (originY ? 0 : 1)
+                    const posX: number = Number(x - camX) - (originX ? 0 : 1)
 
-                let adjustX: number = 0
-                if (MathUtils.isNotEven2(posY) || MathUtils.isNotEven(this.state.camera.y))
-                    adjustX = 0.5
-                if (MathUtils.isNotEven2(posY) && MathUtils.isNotEven(this.state.camera.y))
-                    adjustX = 0
+                    let adjustX: number = 0
+                    if (MathUtils.isNotEven2(posY) || MathUtils.isNotEven(this.state.camera.y))
+                        adjustX = 0.5
+                    if (MathUtils.isNotEven2(posY) && MathUtils.isNotEven(this.state.camera.y))
+                        adjustX = 0
 
-
-                result.push({key: key, territory: this.state.positions[key], posX: posX + adjustX, posY: posY, x: x, y: y,})
+                    result.push({key: key, territory: this.state.positions[key], posX: posX + adjustX, posY: posY, x: x, y: y,})
+                }
             }
         }
         return result;
@@ -299,7 +315,7 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
                 <div className="col-md-12">
                     <svg width={this.state.canvas.width} height={this.state.canvas.height} style={{border: "1px solid grey"}}>
 
-                        {this.getCameraView().map((data, index) => {
+                        {!this.state.loading && this.getCameraView().map((data, index) => {
                             return <BoardCase key={index} className={this.getClassName(BigInt(data.key))}
                                               index={BigInt(data.key)} x={data.x} y={data.y} posX={data.posX} posY={data.posY} size={Number(this.state.canvas.caseLength)}
                                               territory={data.territory}

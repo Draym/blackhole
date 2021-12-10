@@ -9,6 +9,8 @@ import ContractLoader from "../../blockchain/ContractLoader";
 import {BlackHoleContract} from "../../blockchain/definition/BlackHoleContract";
 import {NokaiContract} from "../../blockchain/definition/NokaiContract";
 import {NokaiStatsContract} from "../../blockchain/definition/NokaiStatsContract";
+import NokaiInventory from "./game/NokaiInventory";
+import {NokaiId} from "../../blockchain/definition/types";
 
 interface GameViewProperties extends RouteComponentProps {
 }
@@ -42,6 +44,8 @@ class GameView extends Component<GameViewProperties, GameViewState> {
         this.listenAccountChanges = this.listenAccountChanges.bind(this)
         this.loginMetamask = this.loginMetamask.bind(this)
         this.backToLobby = this.backToLobby.bind(this)
+        this.areContractsValid = this.areContractsValid.bind(this)
+        this.onInventoryNokaiClick = this.onInventoryNokaiClick.bind(this)
     }
 
     async componentDidMount() {
@@ -115,6 +119,16 @@ class GameView extends Component<GameViewProperties, GameViewState> {
         this.props.history.push('/')
     }
 
+    areContractsValid() {
+        return this.state.blackhole != null &&
+            this.state.nokai != null &&
+            this.state.nokaiStats != null
+    }
+
+    onInventoryNokaiClick(nokaiId: NokaiId) {
+
+    }
+
     render() {
 
         let content
@@ -137,13 +151,13 @@ class GameView extends Component<GameViewProperties, GameViewState> {
                     </Modal.Footer>
                 </Modal>
             </div>
-        } else if (this.state.networkId != null && this.state.account != null && this.state.blackhole != null) {
+        } else if (this.state.networkId != null && this.state.account != null && this.areContractsValid()) {
             content = <div>
                 <GameNavbar networkId={this.state.networkId} account={this.state.account}/>
                 <div className="container-fluid mt-5">
                     <div className="row">
                         <div className="col-md-9">
-                            <GameBoard blackhole={this.state.blackhole}/>
+                            <GameBoard blackhole={this.state.blackhole!!}/>
                         </div>
                         <div className="col-md-3">
                             <h1>Menu</h1>
@@ -151,7 +165,7 @@ class GameView extends Component<GameViewProperties, GameViewState> {
                     </div>
                     <div className="row">
                         <div className="col-md-12">
-                            <h2>some other UIs</h2>
+                            <NokaiInventory nokai={this.state.nokai!!} account={this.state.account} onClick={this.onInventoryNokaiClick}/>
                         </div>
                     </div>
                 </div>
