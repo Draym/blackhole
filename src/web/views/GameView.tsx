@@ -7,12 +7,16 @@ import {RouteComponentProps, withRouter} from "react-router-dom";
 import GameBoard from "./game/GameBoard";
 import ContractLoader from "../../blockchain/ContractLoader";
 import {BlackHoleContract} from "../../blockchain/definition/BlackHoleContract";
+import {NokaiContract} from "../../blockchain/definition/NokaiContract";
+import {NokaiStatsContract} from "../../blockchain/definition/NokaiStatsContract";
 
 interface GameViewProperties extends RouteComponentProps {
 }
 
 type GameViewState = {
     blackhole: BlackHoleContract | null,
+    nokai: NokaiContract | null,
+    nokaiStats: NokaiStatsContract | null,
     networkId: bigint | null,
     account: string | null,
     walletConnected: boolean,
@@ -24,6 +28,8 @@ class GameView extends Component<GameViewProperties, GameViewState> {
         super(props)
         this.state = {
             blackhole: null,
+            nokai: null,
+            nokaiStats: null,
             networkId: null,
             account: null,
             walletConnected: false,
@@ -67,9 +73,13 @@ class GameView extends Component<GameViewProperties, GameViewState> {
 
     async loadContracts() {
         const blackhole = await ContractLoader.instantiateBlackHole()
+        const nokai = await ContractLoader.instantiateNokai()
+        const nokaiStats = await ContractLoader.instantiateNokaiStats()
 
         this.setState({
-            blackhole: blackhole
+            blackhole: blackhole,
+            nokai: nokai,
+            nokaiStats: nokaiStats
         })
     }
 
