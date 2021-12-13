@@ -11,16 +11,23 @@ import {
     NokaiKilledSearch,
     NokaiReborn,
     NokaiRebornSearch,
-    NokaiStatsContract,
-    Profile
+    NokaiStatsContract
 } from "../blockchain/definition/NokaiStatsContract";
 import Lina from "../blockchain/Lina";
 import {NokaiId} from "../blockchain/definition/types";
+import {parseProfile, parseProfileDTO, Profile, ProfileDTO} from "../blockchain/definition/data/NokaiProfile";
 
 export default class NokaiStats {
 
     static async profile(contract: NokaiStatsContract, nokaiId: NokaiId): Promise<Profile> {
-        return await Lina.call(contract.methods.profile(nokaiId))
+        return parseProfile(await Lina.call(contract.methods.profile(nokaiId)))
+    }
+
+    static async profiles(contract: NokaiStatsContract, nokaiIds: NokaiId[]): Promise<ProfileDTO[]> {
+        const data = await Lina.call(contract.methods.profiles(nokaiIds))
+        return data.map((result: any) => {
+            return parseProfileDTO(result)
+        })
     }
 
     static subscribeNokaiDamaged(contract: NokaiStatsContract, search: NokaiDamagedSearch, callback: (data: NokaiDamaged) => any) {

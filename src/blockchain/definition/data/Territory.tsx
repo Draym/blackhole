@@ -4,7 +4,7 @@ import NumberUtils from "../../../utils/NumberUtils";
 export interface Territory {
     x: bigint,
     y: bigint,
-    darkEnergy: bigint,
+    uxonium: bigint,
     darkMatter: bigint,
     plasmaEnergy: bigint,
     voidEssence: bigint,
@@ -18,7 +18,7 @@ export function parseTerritory(data: any): Territory {
     return {
         x: NumberUtils.from(data.x),
         y: NumberUtils.from(data.y),
-        darkEnergy: NumberUtils.from(data.darkEnergy),
+        uxonium: NumberUtils.from(data.uxonium),
         darkMatter: NumberUtils.from(data.darkMatter),
         plasmaEnergy: NumberUtils.from(data.plasmaEnergy),
         voidEssence: NumberUtils.from(data.voidEssence),

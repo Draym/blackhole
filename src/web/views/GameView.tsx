@@ -165,7 +165,7 @@ class GameView extends Component<GameViewProperties, GameViewState> {
                     </div>
                     <div className="row">
                         <div className="col-md-12">
-                            <NokaiInventory nokai={this.state.nokai!!} account={this.state.account} onClick={this.onInventoryNokaiClick}/>
+                            <NokaiInventory nokai={this.state.nokai!!} nokaiStats={this.state.nokaiStats!!} account={this.state.account} onClick={this.onInventoryNokaiClick}/>
                         </div>
                     </div>
                 </div>
