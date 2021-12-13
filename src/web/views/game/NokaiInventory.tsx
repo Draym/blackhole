@@ -1,4 +1,4 @@
-import {Component} from "react";
+import React, {Component} from "react";
 import {Address, NokaiId} from "../../../blockchain/definition/types";
 import {NokaiContract} from "../../../blockchain/definition/NokaiContract";
 import Nokai from "../../../game/Nokai";
@@ -45,7 +45,6 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
     }
 
     nokaisUpdated(nokaiIds: NokaiId[]) {
-        console.log("NOKAI UPDATED")
         this.setState({nokaisUpdatedAt: Date.now()})
     }
 
@@ -69,10 +68,17 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
         })
     }
 
+    onNokaiClick(e: React.MouseEvent<HTMLImageElement>, nokaiId: NokaiId) {
+        e.preventDefault()
+        this.props.onClick(nokaiId)
+    }
+
     render() {
         return <div>
             {!this.state.loading && NokaiStore.list(this.state.ownedNokaiIds).map((nokai, index) => {
-                return <img style={{border: "1px solid grey"}} src={nokai.imageUrl} alt="nokai" key={index}/>
+                return <img className="nokai-profile-img" style={{border: "1px solid grey"}} src={nokai.imageUrl} alt="nokai" key={index} onClick={(e) => {
+                    this.onNokaiClick(e, nokai.nokaiId)
+                }}/>
             })
             }
         </div>

@@ -15,7 +15,6 @@ export class NokaiStore {
 
     static list(nokaiIds: NokaiId[]): NokaiData[] {
         let nokais: NokaiData[] = []
-        console.log("STORE:", this.nokais)
         nokaiIds.forEach(nokaiId => {
             let nokai = this.nokais[nokaiId.toString()]
             if (nokai !== undefined) {
