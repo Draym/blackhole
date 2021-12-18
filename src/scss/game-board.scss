@@ -36,3 +36,7 @@ svg path {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+svg image {
+  pointer-events: none;
+}
