@@ -7,3 +7,9 @@ export interface NokaiData {
     name: string
     profile: Profile
 }
+
+export class NokaiData {
+    static stringify(data: NokaiData | NokaiData[] | { [key: string]: NokaiData }): string {
+        return JSON.stringify(data, (key, value) => typeof value === 'bigint' ? value.toString() : value)
+    }
+}

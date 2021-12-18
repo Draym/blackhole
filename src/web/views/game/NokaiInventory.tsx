@@ -50,20 +50,27 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
 
     async loadNokais() {
         Nokai.listFor(this.props.nokai, this.props.account).then(nokaiIds => {
+            const required = NokaiStore.missing(nokaiIds)
 
-            NokaiStats.profiles(this.props.nokaiStats, nokaiIds).then(profiles => {
-                const data: { [key: string]: {} } = {}
-                profiles.forEach(profile => {
-                    data[profile.nokaiId.toString()] = {profile: profile}
+            if (required.length !== 0) {
+                NokaiStats.profiles(this.props.nokaiStats, required).then(profiles => {
+                    const data: { [key: string]: {} } = {}
+                    profiles.forEach(profile => {
+                        data[profile.nokaiId.toString()] = {profile: profile}
+                    })
+                    NokaiStore.batch(data)
                 })
-                NokaiStore.batch(data)
-            })
 
-            nokaiIds.forEach(nokaiId => {
-                HttpUtils.get(NfStorage.config + `/${nokaiId}.json`, (result: NokaiConfig) => {
-                    NokaiStore.update(nokaiId, {nokaiId: nokaiId, imageUrl: NfStorage.img + `/${result.image}`, name: result.name})
-                }, null)
-            })
+                required.forEach(nokaiId => {
+                    HttpUtils.get(NfStorage.config + `/${nokaiId}.json`, (result: NokaiConfig) => {
+                        NokaiStore.update(nokaiId, {
+                            nokaiId: nokaiId,
+                            imageUrl: NfStorage.img + `/${result.image}`,
+                            name: result.name
+                        })
+                    }, null)
+                })
+            }
             this.setState({loading: false, ownedNokaiIds: nokaiIds})
         })
     }
@@ -76,7 +83,8 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
     render() {
         return <div>
             {!this.state.loading && NokaiStore.list(this.state.ownedNokaiIds).map((nokai, index) => {
-                return <img className="nokai-profile-img" style={{border: "1px solid grey"}} src={nokai.imageUrl} alt="nokai" key={index} onClick={(e) => {
+                return <img className="nokai-profile-img" style={{border: "1px solid grey"}} src={nokai.imageUrl}
+                            alt="nokai" key={index} onClick={(e) => {
                     this.onNokaiClick(e, nokai.nokaiId)
                 }}/>
             })
