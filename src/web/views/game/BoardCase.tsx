@@ -2,6 +2,8 @@ import {Component} from "react";
 import {Point} from "./data/Point";
 import {Territory} from "../../../blockchain/definition/data/Territory";
 import {Position} from "./data/Position";
+import {GameResourceImg} from "../../../resources/images";
+import MathUtils from "../../../utils/MathUtils";
 
 type TerritoryProperties = {
     className: string,
@@ -65,15 +67,52 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
         })
     }
 
+    getResource(): { img: any, width: number, height: number } | null {
+        if (this.props.territory.uxonium > 0) {
+            return {
+                img: GameResourceImg.UXONIUM,
+                width: 50,
+                height: 50
+            }
+        } else if (this.props.territory.darkMatter > 0) {
+            return {
+                img: GameResourceImg.DARK_MATTER,
+                width: MathUtils.min(60 * Number(this.props.territory.darkMatter) / 100, 20),
+                height: MathUtils.min(60 * Number(this.props.territory.darkMatter) / 100, 20)
+            }
+        } else if (this.props.territory.plasmaEnergy > 0) {
+            return {
+                img: GameResourceImg.PLASMA_ENERGY,
+                width: MathUtils.min(60 * Number(this.props.territory.plasmaEnergy) / 100, 20),
+                height: MathUtils.min(60 * Number(this.props.territory.plasmaEnergy) / 100, 20)
+            }
+        } else if (this.props.territory.voidEssence > 0) {
+            return {
+                img: GameResourceImg.VOID_ESSENCE,
+                width: MathUtils.min(60 * Number(this.props.territory.voidEssence) / 100, 20),
+                height: MathUtils.min(60 * Number(this.props.territory.voidEssence) / 100, 20)
+            }
+        } else {
+            return null
+        }
+    }
+
     render() {
+        const resource = this.getResource()
         const points = this.calculateCoordinates().map(point => `${point.x},${point.y}`).join(" ")
+        const x = this.props.posX * this.props.size
+        const y = (this.props.posY * this.props.size) - (BoardCase.spacing * this.props.posY)
         return <g className={'hexagon-group ' + this.props.className}
                   onMouseOver={e => this.onMouseOver(e)}
                   onClick={e => this.onClick(e)}>
             <g className="hexagon">
-                <text x={this.props.posX * this.props.size + 24} y={(this.props.posY * this.props.size) - (BoardCase.spacing * this.props.posY) + 55}
+                <text x={x + 24}
+                      y={y + 55}
                       fill="black">{Number(this.props.x)}_{Number(this.props.y)}</text>
                 <polygon points={points}/>
+                {resource != null && <image href={resource.img}
+                                            height={resource.height} width={resource.width}
+                                            x={x + (this.props.size / 2) - (resource.width / 2)} y={y + (this.props.size / 2) - (resource.height / 2)}/>}
             </g>
         </g>
     }
