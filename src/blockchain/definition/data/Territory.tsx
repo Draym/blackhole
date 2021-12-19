@@ -1,5 +1,6 @@
 import {Extractor} from "./Extractor";
 import NumberUtils from "../../../utils/NumberUtils";
+import {NokaiId} from "../types";
 
 export interface Territory {
     x: bigint,
@@ -9,7 +10,7 @@ export interface Territory {
     plasmaEnergy: bigint,
     voidEssence: bigint,
     extractor: Extractor,
-    nokai: bigint,
+    nokaiId: NokaiId,
     owner: string,
     discovered: boolean
 }
@@ -27,7 +28,7 @@ export function parseTerritory(data: any): Territory {
             cost: NumberUtils.from(data.extractor.cost),
             lastExtract: NumberUtils.from(data.extractor.lastExtract),
         },
-        nokai: NumberUtils.from(data.nokai),
+        nokaiId: NumberUtils.from(data.nokaiId),
         owner: data.owner,
         discovered: data.discovered
     }

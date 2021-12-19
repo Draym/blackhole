@@ -99,20 +99,20 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
         } else if (this.props.territory.darkMatter > 0) {
             return {
                 img: GameResourceImg.DARK_MATTER,
-                width: MathUtils.min(60 * Number(this.props.territory.darkMatter) / 100, 20),
-                height: MathUtils.min(60 * Number(this.props.territory.darkMatter) / 100, 20)
+                width: MathUtils.max(45 * Number(this.props.territory.darkMatter) / 100, 15),
+                height: MathUtils.max(45 * Number(this.props.territory.darkMatter) / 100, 15)
             }
         } else if (this.props.territory.plasmaEnergy > 0) {
             return {
                 img: GameResourceImg.PLASMA_ENERGY,
-                width: MathUtils.min(60 * Number(this.props.territory.plasmaEnergy) / 100, 20),
-                height: MathUtils.min(60 * Number(this.props.territory.plasmaEnergy) / 100, 20)
+                width: MathUtils.max(45 * Number(this.props.territory.plasmaEnergy) / 100, 15),
+                height: MathUtils.max(45 * Number(this.props.territory.plasmaEnergy) / 100, 151)
             }
         } else if (this.props.territory.voidEssence > 0) {
             return {
                 img: GameResourceImg.VOID_ESSENCE,
-                width: MathUtils.min(60 * Number(this.props.territory.voidEssence) / 100, 20),
-                height: MathUtils.min(60 * Number(this.props.territory.voidEssence) / 100, 20)
+                width: MathUtils.max(45 * Number(this.props.territory.voidEssence) / 100, 15),
+                height: MathUtils.max(45 * Number(this.props.territory.voidEssence) / 100, 15)
             }
         } else {
             return null
@@ -124,7 +124,7 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
         const points = this.calculateCoordinates().map(point => `${point.x},${point.y}`).join(" ")
         const x = this.props.posX * this.props.size
         const y = (this.props.posY * this.props.size) - (BoardCase.spacing * this.props.posY)
-        const nokai = this.props.territory.nokai !== BigInt(0) ? NokaiStore.get(this.props.territory.nokai) : null
+        const nokai = this.props.territory.nokaiId !== BigInt(0) ? NokaiStore.get(this.props.territory.nokaiId) : null
         return <g className={'hexagon-group ' + this.props.className}
                   onMouseOver={e => this.onMouseOver(e)}
                   onClick={e => this.onClick(e)}
