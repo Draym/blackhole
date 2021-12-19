@@ -2,9 +2,9 @@ import Lina from "../blockchain/Lina";
 import {parseTerritory, Territory} from "../blockchain/definition/data/Territory";
 import {
     BlackHoleContract,
-    ExtractorUpgraded,
+    ExtractorUpgraded, NokaiAssigned, NokaiAssignedSearch,
     NokaiMoved,
-    NokaiMovedSearch,
+    NokaiMovedSearch, NokaiWithdrawn, NokaiWithdrawnSearch,
     SlotConquered,
     SlotConqueredSearch,
     SlotDiscovered,
@@ -35,6 +35,7 @@ export default class BlackHole {
             return parseTerritory(result)
         })
     }
+
     static async getTerritoryForRange(contract: BlackHoleContract, from: bigint, to: bigint): Promise<Territory[]> {
         const data = await Lina.call(contract.methods.getForRange(from, to))
 
@@ -72,23 +73,45 @@ export default class BlackHole {
         return NumberUtils.from(await Lina.call(contract.methods.nokaiAt(postX, posY)))
     }
 
-    static subscribeSlotDiscovered(contract: BlackHoleContract, callback: (data: SlotDiscovered) => any) {
-        contract.events.SlotDiscovered().on('data', callback)
+    static subscribeSlotDiscovered(contract: BlackHoleContract, callback: (data: SlotDiscovered) => any): any {
+        return contract.events.SlotDiscovered().on('data', (data: any) => {
+            callback(SlotDiscovered.parse(data.returnValues))
+        })
     }
 
-    static subscribeSlotConquered(contract: BlackHoleContract, search: SlotConqueredSearch, callback: (data: SlotConquered) => any) {
-        contract.events.SlotConquered(search).on('data', callback)
+    static subscribeSlotConquered(contract: BlackHoleContract, search: SlotConqueredSearch | null, callback: (data: SlotConquered) => any): any {
+        return contract.events.SlotConquered(search).on('data', (data: any) => {
+            callback(SlotConquered.parse(data.returnValues))
+        })
     }
 
-    static subscribeNokaiMoved(contract: BlackHoleContract, search: NokaiMovedSearch, callback: (data: NokaiMoved) => any) {
-        contract.events.NokaiMoved(search).on('data', callback)
+    static subscribeNokaiMoved(contract: BlackHoleContract, search: NokaiMovedSearch | null, callback: (data: NokaiMoved) => any): any {
+        return contract.events.NokaiMoved(search).on('data', (data: any) => {
+            callback(NokaiMoved.parse(data.returnValues))
+        })
     }
 
-    static subscribeTerritoryExtracted(contract: BlackHoleContract, callback: (data: TerritoryExtracted) => any) {
-        contract.events.TerritoryExtracted().on('data', callback)
+    static subscribeNokaiAssigned(contract: BlackHoleContract, search: NokaiAssignedSearch | null, callback: (data: NokaiAssigned) => any): any {
+        return contract.events.NokaiAssigned(search).on('data', (data: any) => {
+            callback(NokaiAssigned.parse(data.returnValues))
+        })
     }
 
-    static subscribeExtractorUpgraded(contract: BlackHoleContract, callback: (data: ExtractorUpgraded) => any) {
-        contract.events.ExtractorUpgraded().on('data', callback)
+    static subscribeNokaiWithdrawn(contract: BlackHoleContract, search: NokaiWithdrawnSearch | null, callback: (data: NokaiWithdrawn) => any): any {
+        return contract.events.NokaiWithdrawn(search).on('data', (data: any) => {
+            callback(NokaiWithdrawn.parse(data.returnValues))
+        })
+    }
+
+    static subscribeTerritoryExtracted(contract: BlackHoleContract, callback: (data: TerritoryExtracted) => any): any {
+        return contract.events.TerritoryExtracted().on('data', (data: any) => {
+            callback(TerritoryExtracted.parse(data.returnValues))
+        })
+    }
+
+    static subscribeExtractorUpgraded(contract: BlackHoleContract, callback: (data: ExtractorUpgraded) => any): any {
+        return contract.events.ExtractorUpgraded().on('data', (data: any) => {
+            callback(ExtractorUpgraded.parse(data.returnValues))
+        })
     }
 }

@@ -5,6 +5,8 @@ import {Territory} from "../../../../blockchain/definition/data/Territory";
 import {BoardPos} from "../../data/BoardPos";
 import {GameResourceImg} from "../../../../resources/images";
 import MathUtils from "../../../../utils/MathUtils";
+import {DragNokai} from "../../store/DragNokai";
+import {NokaiStore} from "../../store/NokaiStore";
 
 type TerritoryProperties = {
     className: string,
@@ -56,14 +58,19 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
     }
 
     onDragEnter(event: any) {
+        const position = new BoardPos(this.props.index, this.props.x, this.props.y, this.props.posX, this.props.posY)
+        DragNokai.changePos(position)
         if (this.props.onDragEnter) {
-            this.props.onDragEnter(new BoardPos(this.props.index, this.props.x, this.props.y, this.props.posX, this.props.posY));
+            this.props.onDragEnter(position)
         }
         this.setState({onDragFocus: true})
     }
 
     onDragLeave(event: any) {
         this.setState({onDragFocus: false})
+        if (!(event.relatedTarget == null || event.relatedTarget.tagName === 'polygon')) {
+            DragNokai.resetPosition()
+        }
     }
 
 
@@ -117,6 +124,7 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
         const points = this.calculateCoordinates().map(point => `${point.x},${point.y}`).join(" ")
         const x = this.props.posX * this.props.size
         const y = (this.props.posY * this.props.size) - (BoardCase.spacing * this.props.posY)
+        const nokai = this.props.territory.nokai !== BigInt(0) ? NokaiStore.get(this.props.territory.nokai) : null
         return <g className={'hexagon-group ' + this.props.className}
                   onMouseOver={e => this.onMouseOver(e)}
                   onClick={e => this.onClick(e)}
@@ -136,6 +144,10 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
                                             height={resource.height} width={resource.width}
                                             x={x + (this.props.size / 2) - (resource.width / 2)}
                                             y={y + (this.props.size / 2) - (resource.height / 2)}/>}
+                {nokai != null && <image href={nokai.imageUrl}
+                                         height={40} width={40}
+                                         x={x + (this.props.size / 2)}
+                                         y={y + (this.props.size / 2)}/>}
             </g>
         </g>
     }

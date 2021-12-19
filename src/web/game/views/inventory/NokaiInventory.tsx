@@ -9,10 +9,14 @@ import {NfStorage} from "../../../../utils/NftStorage";
 import NokaiStats from "../../../../api/NokaiStats";
 import {NokaiStore} from "../../store/NokaiStore";
 import {NokaiStatsContract} from "../../../../blockchain/definition/NokaiStatsContract";
+import {DragNokai} from "../../store/DragNokai";
+import BlackHole from "../../../../api/BlackHole";
+import {BlackHoleContract} from "../../../../blockchain/definition/BlackHoleContract";
 
 type NokaiInventoryProperties = {
     nokai: NokaiContract,
     nokaiStats: NokaiStatsContract,
+    blackhole: BlackHoleContract,
     account: Address,
     onClicked: ((nokaiId: NokaiId) => void) | null,
     onDragged: ((nokaiId: NokaiId) => void) | null
@@ -77,6 +81,11 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
                             name: result.name
                         })
                     }, null)
+                    BlackHole.getNokaiPos(this.props.blackhole, nokaiId).then(nokaiPos => {
+                        NokaiStore.update(nokaiId, {
+                            nokaiPos: nokaiPos
+                        })
+                    })
                 })
             }
             this.setState({loading: false, ownedNokaiIds: nokaiIds})
@@ -90,10 +99,20 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
         }
     }
 
+    onNokaiDragStart(e: React.MouseEvent<HTMLImageElement>, nokaiId: NokaiId) {
+        const nokai = NokaiStore.get(nokaiId)
+        if (nokai != null && nokai.nokaiPos !== undefined && nokai.nokaiPos.onBoard) {
+            e.preventDefault()
+        } else {
+            DragNokai.nokaiDragged(nokaiId)
+        }
+    }
+
     onNokaiDragEnd(e: React.MouseEvent<HTMLImageElement>, nokaiId: NokaiId) {
         e.preventDefault()
         if (this.props.onDragged != null) {
             this.props.onDragged(nokaiId)
+            DragNokai.reset()
         }
     }
 
@@ -103,8 +122,12 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
                 return <img className="nokai-img" alt="nokai" key={index}
                             style={{border: "1px solid grey"}}
                             src={nokai.imageUrl}
+                            draggable={!nokai.nokaiPos?.onBoard}
                             onClick={(e) => {
                                 this.onNokaiClick(e, nokai.nokaiId)
+                            }}
+                            onDragStart={e => {
+                                this.onNokaiDragStart(e, nokai.nokaiId)
                             }}
                             onDragEnd={e => {
                                 this.onNokaiDragEnd(e, nokai.nokaiId)

@@ -8,22 +8,23 @@ interface NokaiDetailModalProperties {
     nokaiId: NokaiId
 }
 
-type NokaiDetailModalState = {
-}
+type NokaiDetailModalState = {}
 
 export default class NokaiDetailModal extends Component<NokaiDetailModalProperties, NokaiDetailModalState> {
     render() {
         const nokai = NokaiStore.get(this.props.nokaiId)
-        return <div>
-            <Modal className="nokai-profile-modal"
-                   show={true} keyboard={false}
-                   aria-labelledby="contained-modal-title-vcenter"
-                   centered animation={false}>
-                <Modal.Header><Modal.Title>Nokai: {nokai.name}</Modal.Title></Modal.Header>
-                <Modal.Body>
-                    Nokai profile
-                </Modal.Body>
-            </Modal>
-        </div>
+        if (nokai != null) {
+            return <div>
+                <Modal className="nokai-profile-modal"
+                       show={true} keyboard={false}
+                       aria-labelledby="contained-modal-title-vcenter"
+                       centered animation={false}>
+                    <Modal.Header><Modal.Title>Nokai: {nokai.name}</Modal.Title></Modal.Header>
+                    <Modal.Body>
+                        Nokai profile
+                    </Modal.Body>
+                </Modal>
+            </div>
+        } else return <div/>
     }
 }

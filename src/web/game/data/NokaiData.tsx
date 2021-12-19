@@ -1,8 +1,10 @@
 import {NokaiId} from "../../../blockchain/definition/types";
 import {Profile} from "../../../blockchain/definition/data/NokaiProfile";
+import {NokaiPos} from "../../../blockchain/definition/data/NokaiPos";
 
 export interface NokaiData {
     nokaiId: NokaiId
+    nokaiPos: NokaiPos
     imageUrl: string
     name: string
     profile: Profile

@@ -14,8 +14,12 @@ export class NokaiStore {
         delete this.subscribers[id]
     }
 
-    static get(nokaiId: NokaiId): NokaiData {
-        return this.nokais[nokaiId.toString()]
+    static get(nokaiId: NokaiId): NokaiData | null {
+        const nokai = this.nokais[nokaiId.toString()]
+        if (nokai === undefined) {
+            return null
+        }
+        return nokai
     }
 
     static list(nokaiIds: NokaiId[]): NokaiData[] {
