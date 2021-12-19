@@ -42,13 +42,13 @@ export default class Nokai {
 
     static subscribeNokaiBorn(contract: NokaiContract, search: NokaiBornSearch, callback: (data: NokaiBorn) => any) {
         contract.events.NokaiBorn(search).on('data', (data: any) => {
-            callback(data.returnValues)
+            callback(NokaiBorn.parse(data.returnValues))
         })
     }
 
     static subscribeNokaiUpgraded(contract: NokaiContract, search: NokaiUpgradedSearch, callback: (data: NokaiUpgraded) => any) {
         contract.events.NokaiUpgraded(search).on('data', (data: any) => {
-            callback(data.returnValues)
+            callback(NokaiUpgraded.parse(data.returnValues))
         })
     }
 }

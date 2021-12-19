@@ -9,7 +9,7 @@ interface Methods {
     conquer: (fromX: bigint, fromY: bigint, target: PositionTarget) => any,
     teleport: (fromX: bigint, fromY: bigint, toX: bigint, toY: bigint) => any,
     assignNokaiToBoard: (nokaiId: NokaiId, x: bigint, y: bigint) => any,
-    
+
     upgradeExtractor: (x: bigint, y: bigint) => any,
     collectResources: (x: bigint, y: bigint) => any,
     collectResourcesBash: (positions: Position[]) => any

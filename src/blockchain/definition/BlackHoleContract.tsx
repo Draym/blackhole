@@ -9,6 +9,7 @@ export interface SlotDiscovered {
     y: bigint,
     by: Address
 }
+
 export class SlotDiscovered {
     static parse(data: any): SlotDiscovered {
         return {
@@ -25,6 +26,7 @@ export interface SlotConquered {
     previousOwner: Address,
     newOwner: Address
 }
+
 export class SlotConquered {
     static parse(data: any): SlotConquered {
         return {
@@ -35,6 +37,7 @@ export class SlotConquered {
         }
     }
 }
+
 export interface SlotConqueredSearch {
     previousOwner: Address | null,
     newOwner: Address | null
@@ -46,6 +49,7 @@ export interface NokaiAssigned {
     nokaiId: NokaiId,
     owner: Address
 }
+
 export class NokaiAssigned {
     static parse(data: any): NokaiAssigned {
         return {
@@ -56,6 +60,7 @@ export class NokaiAssigned {
         }
     }
 }
+
 export interface NokaiAssignedSearch {
     nokai: NokaiId | null,
     owner: Address | null
@@ -64,6 +69,7 @@ export interface NokaiAssignedSearch {
 export interface NokaiWithdrawn {
     nokaiId: NokaiId
 }
+
 export class NokaiWithdrawn {
     static parse(data: any): NokaiWithdrawn {
         return {
@@ -71,6 +77,7 @@ export class NokaiWithdrawn {
         }
     }
 }
+
 export interface NokaiWithdrawnSearch {
     nokaiId: NokaiId
 }
@@ -83,6 +90,7 @@ export interface NokaiMoved {
     nokaiId: NokaiId,
     owner: Address
 }
+
 export class NokaiMoved {
     static parse(data: any): NokaiMoved {
         return {
@@ -95,6 +103,7 @@ export class NokaiMoved {
         }
     }
 }
+
 export interface NokaiMovedSearch {
     nokai: NokaiId | null,
     owner: Address | null
@@ -105,6 +114,7 @@ export interface TerritoryExtracted {
     y: bigint,
     by: Address
 }
+
 export class TerritoryExtracted {
     static parse(data: any): TerritoryExtracted {
         return {
@@ -121,6 +131,7 @@ export interface ExtractorUpgraded {
     by: Address
     level: bigint
 }
+
 export class ExtractorUpgraded {
     static parse(data: any): ExtractorUpgraded {
         return {

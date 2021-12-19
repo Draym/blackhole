@@ -32,37 +32,37 @@ export default class NokaiStats {
 
     static subscribeNokaiDamaged(contract: NokaiStatsContract, search: NokaiDamagedSearch, callback: (data: NokaiDamaged) => any) {
         contract.events.NokaiDamaged(search).on('data', (data: any) => {
-            callback(data.returnValues)
+            callback(NokaiDamaged.parse(data.returnValues))
         })
     }
 
     static subscribeNokaiKilled(contract: NokaiStatsContract, search: NokaiKilledSearch, callback: (data: NokaiKilled) => any) {
         contract.events.NokaiKilled(search).on('data', (data: any) => {
-            callback(data.returnValues)
+            callback(NokaiKilled.parse(data.returnValues))
         })
     }
 
     static subscribeNokaiReborn(contract: NokaiStatsContract, search: NokaiRebornSearch, callback: (data: NokaiReborn) => any) {
         contract.events.NokaiReborn(search).on('data', (data: any) => {
-            callback(data.returnValues)
+            callback(NokaiReborn.parse(data.returnValues))
         })
     }
 
     static subscribeNokaiHealed(contract: NokaiStatsContract, search: NokaiHealedSearch, callback: (data: NokaiHealed) => any) {
         contract.events.NokaiHealed(search).on('data', (data: any) => {
-            callback(data.returnValues)
+            callback(NokaiHealed.parse(data.returnValues))
         })
     }
 
     static subscribeNokaiEnergized(contract: NokaiStatsContract, search: NokaiEnergizedSearch, callback: (data: NokaiEnergized) => any) {
         contract.events.NokaiEnergized(search).on('data', (data: any) => {
-            callback(data.returnValues)
+            callback(NokaiEnergized.parse(data.returnValues))
         })
     }
 
     static subscribeNokaiEmptyEnergy(contract: NokaiStatsContract, search: NokaiEmptyEnergySearch, callback: (data: NokaiEmptyEnergy) => any) {
         contract.events.NokaiEmptyEnergy(search).on('data', (data: any) => {
-            callback(data.returnValues)
+            callback(NokaiEmptyEnergy.parse(data.returnValues))
         })
     }
 
