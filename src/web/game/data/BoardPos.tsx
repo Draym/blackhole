@@ -1,4 +1,4 @@
-export class Position {
+export class BoardPos {
     index: bigint
     x: bigint
     y: bigint

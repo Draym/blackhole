@@ -1,16 +1,20 @@
 import {Component} from "react";
-import GameNavbar from "./game/GameNavbar";
-import GameLoading from "./game/GameLoading";
-import Web3Utils from "../../blockchain/Web3Utils";
+import GameNavbar from "./navbar/GameNavbar";
+import GameLoading from "./loading/GameLoading";
+import Web3Utils from "../../../blockchain/Web3Utils";
 import {Button, Modal} from "react-bootstrap";
 import {RouteComponentProps, withRouter} from "react-router-dom";
-import GameBoard from "./game/GameBoard";
-import ContractLoader from "../../blockchain/ContractLoader";
-import {BlackHoleContract} from "../../blockchain/definition/BlackHoleContract";
-import {NokaiContract} from "../../blockchain/definition/NokaiContract";
-import {NokaiStatsContract} from "../../blockchain/definition/NokaiStatsContract";
-import NokaiInventory from "./game/NokaiInventory";
-import {NokaiId} from "../../blockchain/definition/types";
+import GameBoard from "./board/GameBoard";
+import ContractLoader from "../../../blockchain/ContractLoader";
+import {BlackHoleContract} from "../../../blockchain/definition/BlackHoleContract";
+import {NokaiContract} from "../../../blockchain/definition/NokaiContract";
+import {NokaiStatsContract} from "../../../blockchain/definition/NokaiStatsContract";
+import NokaiInventory from "./inventory/NokaiInventory";
+import {NokaiId} from "../../../blockchain/definition/types";
+import {GameManagerContract} from "../../../blockchain/definition/GameManagerContract";
+import GameWrongNetwork from "./error/GameWrongNetwork";
+import GameUnexpectedError from "./error/GameUnexpectedError";
+import GameWalletNotConnected from "./error/GameWalletNotConnected";
 
 interface GameViewProperties extends RouteComponentProps {
 }
@@ -19,6 +23,7 @@ type GameViewState = {
     blackhole: BlackHoleContract | null,
     nokai: NokaiContract | null,
     nokaiStats: NokaiStatsContract | null,
+    gameManager: GameManagerContract | null,
     networkId: bigint | null,
     account: string | null,
     walletConnected: boolean,
@@ -32,6 +37,7 @@ class GameView extends Component<GameViewProperties, GameViewState> {
             blackhole: null,
             nokai: null,
             nokaiStats: null,
+            gameManager: null,
             networkId: null,
             account: null,
             walletConnected: false,
@@ -45,7 +51,8 @@ class GameView extends Component<GameViewProperties, GameViewState> {
         this.loginMetamask = this.loginMetamask.bind(this)
         this.backToLobby = this.backToLobby.bind(this)
         this.areContractsValid = this.areContractsValid.bind(this)
-        this.onInventoryNokaiClick = this.onInventoryNokaiClick.bind(this)
+        this.onInventoryNokaiClicked = this.onInventoryNokaiClicked.bind(this)
+        this.onInventoryNokaiDragged = this.onInventoryNokaiDragged.bind(this)
     }
 
     async componentDidMount() {
@@ -79,11 +86,13 @@ class GameView extends Component<GameViewProperties, GameViewState> {
         const blackhole = await ContractLoader.instantiateBlackHole()
         const nokai = await ContractLoader.instantiateNokai()
         const nokaiStats = await ContractLoader.instantiateNokaiStats()
+        const gameManager = await ContractLoader.instantiateGameManager()
 
         this.setState({
             blackhole: blackhole,
             nokai: nokai,
-            nokaiStats: nokaiStats
+            nokaiStats: nokaiStats,
+            gameManager: gameManager
         })
     }
 
@@ -125,32 +134,20 @@ class GameView extends Component<GameViewProperties, GameViewState> {
             this.state.nokaiStats != null
     }
 
-    onInventoryNokaiClick(nokaiId: NokaiId) {
+    onInventoryNokaiClicked(nokaiId: NokaiId) {
+
+    }
+
+    onInventoryNokaiDragged(nokaiId: NokaiId) {
 
     }
 
     render() {
-
         let content
-
         if (this.state.loading) {
             content = <GameLoading/>
         } else if (!this.state.walletConnected) {
-            content = <div>
-                <Modal show={true} backdrop="static" keyboard={false} aria-labelledby="contained-modal-title-vcenter" centered animation={false}>
-                    <Modal.Header closeButton={false}><Modal.Title>Metamask</Modal.Title></Modal.Header>
-                    <Modal.Body>
-                        A connection to your Metamask wallet is required in order to play in BlackHole. We will use this access to retrieve your NFT and tokens associated to the
-                        linked account.
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={this.backToLobby}>
-                            Quit Game
-                        </Button>
-                        <Button variant="primary" onClick={this.loginMetamask}>Login Metamask</Button>
-                    </Modal.Footer>
-                </Modal>
-            </div>
+            content = <GameWalletNotConnected backToLobby={this.backToLobby} loginMetamask={this.loginMetamask}/>
         } else if (this.state.networkId != null && this.state.account != null && this.areContractsValid()) {
             content = <div>
                 <GameNavbar networkId={this.state.networkId} account={this.state.account}/>
@@ -165,25 +162,19 @@ class GameView extends Component<GameViewProperties, GameViewState> {
                     </div>
                     <div className="row">
                         <div className="col-md-12">
-                            <NokaiInventory nokai={this.state.nokai!!} nokaiStats={this.state.nokaiStats!!} account={this.state.account} onClick={this.onInventoryNokaiClick}/>
+                            <NokaiInventory nokai={this.state.nokai!!}
+                                            nokaiStats={this.state.nokaiStats!!}
+                                            account={this.state.account}
+                                            onClicked={this.onInventoryNokaiClicked}
+                                            onDragged={this.onInventoryNokaiDragged}/>
                         </div>
                     </div>
                 </div>
             </div>
         } else if (this.state.blackhole == null) {
-            content = <div>
-                <h3>Error: The game is not deployed on your selected network ({this.state.networkId}). Please select a supported network on your Metamask.</h3>
-                <Button variant="secondary" onClick={this.backToLobby}>
-                    Go Back
-                </Button>
-            </div>
+            content = <GameWrongNetwork backToLobby={this.backToLobby} networkId={this.state.networkId}/>
         } else {
-            content = <div>
-                <h3>Error: unexpected error</h3>
-                <Button variant="secondary" onClick={this.backToLobby}>
-                    Quit Game
-                </Button>
-            </div>
+            content = <GameUnexpectedError backToLobby={this.backToLobby}/>
         }
 
         return <div className="container-fluid mt-5">

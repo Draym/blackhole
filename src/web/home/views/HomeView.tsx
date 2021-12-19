@@ -1,8 +1,8 @@
 import {Component} from "react";
-import HomeLoading from "./home/HomeLoading";
+import HomeLoading from "./loading/HomeLoading";
 import {Route, RouteComponentProps, Switch, withRouter} from "react-router-dom";
-import Navbar from "./home/Navbar";
-import TutorialView from "./home/TutorialView";
+import HomeNavbar from "./navbar/HomeNavbar";
+import TutorialView from "./tutorial/TutorialView";
 import {Button} from "react-bootstrap";
 
 interface HomeViewProperties extends RouteComponentProps {
@@ -41,7 +41,7 @@ class HomeView extends Component<HomeViewProperties, HomeViewState> {
             return <HomeLoading/>
         } else {
             return <div>
-                <Navbar/>
+                <HomeNavbar/>
                 <div className="container-fluid mt-5">
                     <Switch>
                         <Route path={"/tutorial"}>

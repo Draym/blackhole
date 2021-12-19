@@ -1,19 +1,21 @@
+import "./nokai-inventory.scss";
 import React, {Component} from "react";
-import {Address, NokaiId} from "../../../blockchain/definition/types";
-import {NokaiContract} from "../../../blockchain/definition/NokaiContract";
-import Nokai from "../../../game/Nokai";
-import HttpUtils from "../../../utils/HttpUtils";
-import {NokaiConfig} from "./data/NokaiConfig";
-import {NfStorage} from "../../../utils/NftStorage";
-import NokaiStats from "../../../game/NokaiStats";
-import {NokaiStore} from "./store/NokaiStore";
-import {NokaiStatsContract} from "../../../blockchain/definition/NokaiStatsContract";
+import {Address, NokaiId} from "../../../../blockchain/definition/types";
+import {NokaiContract} from "../../../../blockchain/definition/NokaiContract";
+import Nokai from "../../../../api/Nokai";
+import HttpUtils from "../../../../utils/HttpUtils";
+import {NokaiConfig} from "../../data/NokaiConfig";
+import {NfStorage} from "../../../../utils/NftStorage";
+import NokaiStats from "../../../../api/NokaiStats";
+import {NokaiStore} from "../../store/NokaiStore";
+import {NokaiStatsContract} from "../../../../blockchain/definition/NokaiStatsContract";
 
 type NokaiInventoryProperties = {
     nokai: NokaiContract,
     nokaiStats: NokaiStatsContract,
     account: Address,
-    onClick: (nokaiId: NokaiId) => void
+    onClicked: ((nokaiId: NokaiId) => void) | null,
+    onDragged: ((nokaiId: NokaiId) => void) | null
 }
 
 type NokaiInventoryState = {
@@ -31,11 +33,17 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
             loading: true
         }
         this.nokaisUpdated = this.nokaisUpdated.bind(this)
+        this.onNokaiClick = this.onNokaiClick.bind(this)
+        this.onNokaiDragEnd = this.onNokaiDragEnd.bind(this)
     }
 
     async componentDidMount() {
         NokaiStore.subscribe("NokaiInventory", this.nokaisUpdated)
         await this.loadNokais()
+    }
+
+    componentWillUnmount() {
+        NokaiStore.unsubscribe("NokaiInventory")
     }
 
     async componentDidUpdate(prevProps: Readonly<NokaiInventoryProperties>, prevState: Readonly<NokaiInventoryState>, snapshot?: any) {
@@ -77,16 +85,31 @@ export default class NokaiInventory extends Component<NokaiInventoryProperties, 
 
     onNokaiClick(e: React.MouseEvent<HTMLImageElement>, nokaiId: NokaiId) {
         e.preventDefault()
-        this.props.onClick(nokaiId)
+        if (this.props.onClicked != null) {
+            this.props.onClicked(nokaiId)
+        }
+    }
+
+    onNokaiDragEnd(e: React.MouseEvent<HTMLImageElement>, nokaiId: NokaiId) {
+        e.preventDefault()
+        if (this.props.onDragged != null) {
+            this.props.onDragged(nokaiId)
+        }
     }
 
     render() {
         return <div>
             {!this.state.loading && NokaiStore.list(this.state.ownedNokaiIds).map((nokai, index) => {
-                return <img className="nokai-profile-img" style={{border: "1px solid grey"}} src={nokai.imageUrl}
-                            alt="nokai" key={index} onClick={(e) => {
-                    this.onNokaiClick(e, nokai.nokaiId)
-                }}/>
+                return <img className="nokai-img" alt="nokai" key={index}
+                            style={{border: "1px solid grey"}}
+                            src={nokai.imageUrl}
+                            onClick={(e) => {
+                                this.onNokaiClick(e, nokai.nokaiId)
+                            }}
+                            onDragEnd={e => {
+                                this.onNokaiDragEnd(e, nokai.nokaiId)
+                            }}
+                />
             })
             }
         </div>

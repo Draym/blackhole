@@ -1,10 +1,12 @@
 import BlackHole from './contracts/BlackHole.json';
 import Nokai from './contracts/Nokai.json';
 import NokaiStats from './contracts/NokaiStats.json';
+import GameManager from './contracts/GameManager.json';
 import Web3Utils from "./Web3Utils";
 import {BlackHoleContract} from "./definition/BlackHoleContract";
 import {NokaiContract} from "./definition/NokaiContract";
 import {NokaiStatsContract} from "./definition/NokaiStatsContract";
+import {GameManagerContract} from "./definition/GameManagerContract";
 
 declare let window: any;
 
@@ -41,6 +43,18 @@ export default class ContractLoader {
         const NokaiStatsData = NokaiStats.networks[networkId]
         if (NokaiStatsData) {
             return new window.web3.eth.Contract(NokaiStats.abi, NokaiStatsData.address)
+        } else {
+            window.alert('NokaiStats contract not deployed to detected network.')
+            return null
+        }
+    }
+
+    static async instantiateGameManager(): Promise<GameManagerContract | null> {
+        const networkId = await Web3Utils.getNetwork()
+        // @ts-ignore
+        const GameManagerData = GameManager.networks[networkId]
+        if (GameManagerData) {
+            return new window.web3.eth.Contract(GameManager.abi, GameManagerData.address)
         } else {
             window.alert('NokaiStats contract not deployed to detected network.')
             return null

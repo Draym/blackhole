@@ -1,6 +1,6 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Component} from "react";
-import Web3Utils from "../../../blockchain/Web3Utils";
+import Web3Utils from "../../../../blockchain/Web3Utils";
 
 type NavbarProperties = {}
 
@@ -10,7 +10,7 @@ type NavbarState = {
     loading: boolean
 }
 
-export default class Navbar extends Component<NavbarProperties, NavbarState> {
+export default class HomeNavbar extends Component<NavbarProperties, NavbarState> {
     constructor(props: NavbarProperties) {
         super(props)
         this.state = {
@@ -18,6 +18,7 @@ export default class Navbar extends Component<NavbarProperties, NavbarState> {
             account: null,
             loading: true
         }
+        this.loginMetamask = this.loginMetamask.bind(this)
     }
 
     async componentDidMount() {

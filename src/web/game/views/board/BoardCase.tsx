@@ -1,9 +1,10 @@
+import "./game-board.scss";
 import {Component} from "react";
-import {Point} from "./data/Point";
-import {Territory} from "../../../blockchain/definition/data/Territory";
-import {Position} from "./data/Position";
-import {GameResourceImg} from "../../../resources/images";
-import MathUtils from "../../../utils/MathUtils";
+import {Point} from "../../data/Point";
+import {Territory} from "../../../../blockchain/definition/data/Territory";
+import {BoardPos} from "../../data/BoardPos";
+import {GameResourceImg} from "../../../../resources/images";
+import MathUtils from "../../../../utils/MathUtils";
 
 type TerritoryProperties = {
     className: string,
@@ -14,12 +15,14 @@ type TerritoryProperties = {
     size: number,
     index: bigint,
     territory: Territory,
-    onClick: ((pos: Position) => void) | null,
-    onMouseOver: ((pos: Position) => void) | null,
+    onClick: ((pos: BoardPos) => void) | null,
+    onMouseOver: ((pos: BoardPos) => void) | null,
+    onDragEnter: ((pos: BoardPos) => void) | null
 }
 
 type TerritoryState = {
     loading: boolean,
+    onDragFocus: boolean
 }
 
 export default class BoardCase extends Component<TerritoryProperties, TerritoryState> {
@@ -38,6 +41,7 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
         super(props)
         this.state = {
             loading: true,
+            onDragFocus: false
         }
     }
 
@@ -47,14 +51,25 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
 
     onMouseOver(event: any) {
         if (this.props.onMouseOver) {
-            this.props.onMouseOver(new Position(this.props.index, this.props.x, this.props.y, this.props.posX, this.props.posY));
+            this.props.onMouseOver(new BoardPos(this.props.index, this.props.x, this.props.y, this.props.posX, this.props.posY));
         }
+    }
+
+    onDragEnter(event: any) {
+        if (this.props.onDragEnter) {
+            this.props.onDragEnter(new BoardPos(this.props.index, this.props.x, this.props.y, this.props.posX, this.props.posY));
+        }
+        this.setState({onDragFocus: true})
+    }
+
+    onDragLeave(event: any) {
+        this.setState({onDragFocus: false})
     }
 
 
     onClick(event: any) {
         if (this.props.onClick) {
-            this.props.onClick(new Position(this.props.index, this.props.x, this.props.y, this.props.posX, this.props.posY));
+            this.props.onClick(new BoardPos(this.props.index, this.props.x, this.props.y, this.props.posX, this.props.posY));
         }
     }
 
@@ -104,15 +119,23 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
         const y = (this.props.posY * this.props.size) - (BoardCase.spacing * this.props.posY)
         return <g className={'hexagon-group ' + this.props.className}
                   onMouseOver={e => this.onMouseOver(e)}
-                  onClick={e => this.onClick(e)}>
-            <g className="hexagon">
+                  onClick={e => this.onClick(e)}
+                  onDragEnter={e => {
+                      this.onDragEnter(e)
+                  }}
+                  onDragLeave={e => {
+                      this.onDragLeave(e)
+                  }}
+        >
+            <g className={"hexagon" + (this.state.onDragFocus ? " case-drag-focus" : "")}>
                 <text x={x + 24}
                       y={y + 55}
                       fill="black">{Number(this.props.x)}_{Number(this.props.y)}</text>
                 <polygon points={points}/>
                 {resource != null && <image href={resource.img}
                                             height={resource.height} width={resource.width}
-                                            x={x + (this.props.size / 2) - (resource.width / 2)} y={y + (this.props.size / 2) - (resource.height / 2)}/>}
+                                            x={x + (this.props.size / 2) - (resource.width / 2)}
+                                            y={y + (this.props.size / 2) - (resource.height / 2)}/>}
             </g>
         </g>
     }

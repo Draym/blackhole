@@ -1,9 +1,9 @@
 import './App.scss';
 import {Component} from "react";
 import {BrowserRouter, Route, Switch} from "react-router-dom";
-import GameView from "./web/views/GameView";
-import HomeView from "./web/views/HomeView";
-import MarketView from "./web/views/MarketView";
+import GameView from "./web/game/views/GameView";
+import HomeView from "./web/home/views/HomeView";
+import MarketView from "./web/market/views/MarketView";
 
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {faGithub, faLinkedinIn} from '@fortawesome/free-brands-svg-icons';

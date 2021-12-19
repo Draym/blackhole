@@ -1,6 +1,6 @@
 import {NokaiData} from "../data/NokaiData";
-import {NokaiId} from "../../../../blockchain/definition/types";
-import Storage from "../../../../utils/Storage";
+import {NokaiId} from "../../../blockchain/definition/types";
+import Storage from "../../../utils/Storage";
 
 export class NokaiStore {
     private static nokais: { [key: string]: NokaiData } = Storage.getNokais()
@@ -8,6 +8,10 @@ export class NokaiStore {
 
     static subscribe(id: string, callback: (nokaiIds: NokaiId[]) => any) {
         this.subscribers[id] = callback
+    }
+
+    static unsubscribe(id: string) {
+        delete this.subscribers[id]
     }
 
     static get(nokaiId: NokaiId): NokaiData {

@@ -1,10 +1,11 @@
+import "./game-board.scss";
 import {Component} from "react";
-import BlackHole from "../../../game/BlackHole";
-import {BlackHoleContract} from "../../../blockchain/definition/BlackHoleContract";
+import BlackHole from "../../../../api/BlackHole";
+import {BlackHoleContract} from "../../../../blockchain/definition/BlackHoleContract";
 import BoardCase from "./BoardCase";
-import {Territory} from "../../../blockchain/definition/data/Territory";
-import MathUtils from "../../../utils/MathUtils";
-import {Position} from "./data/Position";
+import {Territory} from "../../../../blockchain/definition/data/Territory";
+import MathUtils from "../../../../utils/MathUtils";
+import {BoardPos} from "../../data/BoardPos";
 
 class Canvas {
     width: number = 1400
@@ -65,8 +66,8 @@ type GameBoardState = {
     canvas: Canvas,
     camera: Camera,
     board: Board,
-    boxSelected: Position | null,
-    boxFocused: Position | null,
+    boxSelected: BoardPos | null,
+    boxFocused: BoardPos | null,
     positions: { [key: number]: Territory }
 }
 
@@ -255,14 +256,21 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
                     if (MathUtils.isNotEven2(posY) && MathUtils.isNotEven(this.state.camera.y))
                         adjustX = 0
 
-                    result.push({key: key, territory: this.state.positions[key], posX: posX + adjustX, posY: posY, x: x, y: y,})
+                    result.push({
+                        key: key,
+                        territory: this.state.positions[key],
+                        posX: posX + adjustX,
+                        posY: posY,
+                        x: x,
+                        y: y,
+                    })
                 }
             }
         }
         return result;
     }
 
-    boxClicked(pos: Position) {
+    boxClicked(pos: BoardPos) {
         if (this.state.boxSelected?.index === pos.index) {
             this.boxUnSelect()
         } else {
@@ -274,7 +282,7 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         this.setState({boxSelected: null})
     }
 
-    boxHover(pos: Position) {
+    boxHover(pos: BoardPos) {
         this.setState({boxFocused: pos})
     }
 
@@ -297,7 +305,7 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         return false;
     }
 
-    getPath(pos1: Position, pos2: Position): string {
+    getPath(pos1: BoardPos, pos2: BoardPos): string {
         return `M${(pos1.posX * 100) + 50} ${(pos1.posY * 100) + 50 - (BoardCase.spacing * pos1.posY)} L${(pos2.posX * 100) + 50} ${(pos2.posY * 100) + 50 - (BoardCase.spacing * pos2.posY)}`
     }
 
@@ -305,27 +313,32 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         return <div>
             <div className="row">
                 <div className="col-md-9">
-                    <h6>Camera [{Number(this.state.camera.x)}, {Number(this.state.camera.y)}] __ Map [{Number(this.state.board.casesX)}, {Number(this.state.board.casesY)}]</h6>
+                    <h6>Camera [{Number(this.state.camera.x)}, {Number(this.state.camera.y)}] __ Map
+                        [{Number(this.state.board.casesX)}, {Number(this.state.board.casesY)}]</h6>
                 </div>
                 <div className="col-md-3">
-                    {this.state.boxFocused != null && <h6>Position [{Number(this.state.boxFocused.x)}, {Number(this.state.boxFocused.y)}]</h6>}
+                    {this.state.boxFocused != null &&
+                        <h6>Position [{Number(this.state.boxFocused.x)}, {Number(this.state.boxFocused.y)}]</h6>}
                 </div>
             </div>
             <div className="row">
                 <div className="col-md-12">
-                    <svg width={this.state.canvas.width} height={this.state.canvas.height} style={{border: "1px solid grey"}}>
+                    <svg width={this.state.canvas.width} height={this.state.canvas.height}
+                         style={{border: "1px solid grey"}}>
 
                         {!this.state.loading && this.getCameraView().map((data, index) => {
                             return <BoardCase key={index} className={this.getClassName(BigInt(data.key))}
-                                              index={BigInt(data.key)} x={data.x} y={data.y} posX={data.posX} posY={data.posY} size={Number(this.state.canvas.caseLength)}
+                                              index={BigInt(data.key)} x={data.x} y={data.y} posX={data.posX}
+                                              posY={data.posY} size={Number(this.state.canvas.caseLength)}
                                               territory={data.territory}
                                               onClick={this.boxClicked}
-                                              onMouseOver={this.boxHover}/>
+                                              onMouseOver={this.boxHover}
+                                              onDragEnter={null}/>
                         })
                         }
 
                         {this.allowedDistanceForTarget() &&
-                        <path d={this.getPath(this.state.boxSelected!!, this.state.boxFocused!!)}/>
+                            <path d={this.getPath(this.state.boxSelected!!, this.state.boxFocused!!)}/>
                         }
                     </svg>
                 </div>

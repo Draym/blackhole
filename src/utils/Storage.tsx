@@ -1,4 +1,4 @@
-import {NokaiData} from "../web/views/game/data/NokaiData";
+import {NokaiData} from "../web/game/data/NokaiData";
 
 export default class Storage {
     private static nokaisKey = "blackhole-game$nokais"
