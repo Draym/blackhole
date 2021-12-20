@@ -1,6 +1,7 @@
 import {Extractor} from "./Extractor";
 import NumberUtils from "../../../utils/NumberUtils";
-import {NokaiId} from "../types";
+import {Address, NokaiId} from "../types";
+import Web3Utils from "../../Web3Utils";
 
 export interface Territory {
     x: bigint,
@@ -11,7 +12,7 @@ export interface Territory {
     voidEssence: bigint,
     extractor: Extractor,
     nokaiId: NokaiId,
-    owner: string,
+    owner: Address,
     discovered: boolean
 }
 
@@ -29,7 +30,7 @@ export function parseTerritory(data: any): Territory {
             lastExtract: NumberUtils.from(data.extractor.lastExtract),
         },
         nokaiId: NumberUtils.from(data.nokaiId),
-        owner: data.owner,
+        owner: Web3Utils.address(data.owner),
         discovered: data.discovered
     }
 }

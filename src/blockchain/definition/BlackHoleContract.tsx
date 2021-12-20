@@ -3,6 +3,7 @@ import {NokaiPos} from "./data/NokaiPos";
 import {Address, NokaiId} from "./types";
 import {Contract} from "web3-eth-contract";
 import NumberUtils from "../../utils/NumberUtils";
+import Web3Utils from "../Web3Utils";
 
 export interface SlotDiscovered {
     x: bigint,
@@ -15,7 +16,7 @@ export class SlotDiscovered {
         return {
             x: NumberUtils.from(data.x),
             y: NumberUtils.from(data.y),
-            by: data.by
+            by: Web3Utils.address(data.by)
         }
     }
 }
@@ -32,8 +33,8 @@ export class SlotConquered {
         return {
             x: NumberUtils.from(data.x),
             y: NumberUtils.from(data.y),
-            previousOwner: data.previousOwner,
-            newOwner: data.newOwner
+            previousOwner: Web3Utils.address(data.previousOwner),
+            newOwner: Web3Utils.address(data.newOwner)
         }
     }
 }
@@ -56,7 +57,7 @@ export class NokaiAssigned {
             x: NumberUtils.from(data.x),
             y: NumberUtils.from(data.y),
             nokaiId: NumberUtils.from(data.nokaiId),
-            owner: data.owner
+            owner: Web3Utils.address(data.owner)
         }
     }
 }
@@ -99,7 +100,7 @@ export class NokaiMoved {
             toX: NumberUtils.from(data.toX),
             toY: NumberUtils.from(data.toY),
             nokaiId: NumberUtils.from(data.nokaiId),
-            owner: data.owner
+            owner: Web3Utils.address(data.owner)
         }
     }
 }
@@ -120,7 +121,7 @@ export class TerritoryExtracted {
         return {
             x: NumberUtils.from(data.x),
             y: NumberUtils.from(data.y),
-            by: data.by
+            by: Web3Utils.address(data.by)
         }
     }
 }
@@ -137,7 +138,7 @@ export class ExtractorUpgraded {
         return {
             x: NumberUtils.from(data.x),
             y: NumberUtils.from(data.y),
-            by: data.by,
+            by: Web3Utils.address(data.by),
             level: NumberUtils.from(data.level)
         }
     }

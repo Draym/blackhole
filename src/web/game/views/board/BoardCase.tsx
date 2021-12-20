@@ -7,6 +7,7 @@ import {GameResourceImg} from "../../../../resources/images";
 import MathUtils from "../../../../utils/MathUtils";
 import {DragNokai} from "../../store/DragNokai";
 import {NokaiStore} from "../../store/NokaiStore";
+import Web3Utils from "../../../../blockchain/Web3Utils";
 
 type TerritoryProperties = {
     className: string,
@@ -119,13 +120,19 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
         }
     }
 
+    getClassName() {
+        const territoryOwned = (this.props.territory.owner !== Web3Utils.nullAddress() ? " territory-owned" : "")
+        const territoryOwnedByCurrent = (this.props.territory.owner === Web3Utils.getDefaultAccount() ? " territory-owned-current" : "")
+        return this.props.className + territoryOwned + territoryOwnedByCurrent
+    }
+
     render() {
         const resource = this.getResource()
         const points = this.calculateCoordinates().map(point => `${point.x},${point.y}`).join(" ")
         const x = this.props.posX * this.props.size
         const y = (this.props.posY * this.props.size) - (BoardCase.spacing * this.props.posY)
         const nokai = this.props.territory.nokaiId !== BigInt(0) ? NokaiStore.get(this.props.territory.nokaiId) : null
-        return <g className={'hexagon-group ' + this.props.className}
+        return <g className={'hexagon-group ' + this.getClassName()}
                   onMouseOver={e => this.onMouseOver(e)}
                   onClick={e => this.onClick(e)}
                   onDragEnter={e => {

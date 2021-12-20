@@ -1,6 +1,7 @@
 import {Address, NokaiId} from "./types";
 import {Contract} from "web3-eth-contract";
 import NumberUtils from "../../utils/NumberUtils";
+import Web3Utils from "../Web3Utils";
 
 export enum StatType {
     HP,
@@ -19,7 +20,7 @@ export class NokaiBorn {
     static parse(data: any): NokaiBorn {
         return {
             nokaiId: NumberUtils.from(data.nokaiId),
-            owner: data.owner
+            owner: Web3Utils.address(data.owner)
         }
     }
 }
@@ -38,7 +39,7 @@ export class NokaiUpgraded {
     static parse(data: any): NokaiUpgraded {
         return {
             nokaiId: NumberUtils.from(data.nokaiId),
-            owner: data.owner
+            owner: Web3Utils.address(data.owner)
         }
     }
 }

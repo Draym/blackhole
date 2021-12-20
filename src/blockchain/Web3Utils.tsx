@@ -1,5 +1,6 @@
 import Web3 from 'web3'
 import detectEthereumProvider from '@metamask/detect-provider';
+import {Address} from "./definition/types";
 
 declare let window: any;
 
@@ -15,9 +16,9 @@ export default class Web3Utils {
             })
             return true
         }
-        // else if (window.web3) {
-        //     window.web3 = new Web3(window.web3.currentProvider)
-        //     return true
+            // else if (window.web3) {
+            //     window.web3 = new Web3(window.web3.currentProvider)
+            //     return true
         // }
         else {
             window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
@@ -53,16 +54,24 @@ export default class Web3Utils {
         return window.web3.eth.net.getId()
     }
 
-    static async getAccounts(): Promise<string[]> {
+    static async getAccounts(): Promise<Address[]> {
         return await window.ethereum.request({method: 'eth_accounts'})
     }
 
-    static getDefaultAccount(): string | null {
+    static getDefaultAccount(): Address | null {
         try {
-            return window.ethereum.defaultAccount
+            return window.ethereum.defaultAccount.toLowerCase()
         } catch (e) {
             return null
         }
+    }
+
+    static address(value: Address): Address {
+        return value.toLowerCase()
+    }
+
+    static isDefaultAccount(address: Address): boolean {
+        return this.getDefaultAccount() === address.toLowerCase()
     }
 
     static encode(value: string): string {

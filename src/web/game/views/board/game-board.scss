@@ -7,16 +7,16 @@ Russian blue pattern:
 #03090a
 */
 svg g {
-  fill: #4499a9;
+  fill: rgba(104, 84, 162, 0.1);
   fill-opacity: 0.6;
 }
 svg polygon:hover {
-  fill: #7be3f6;
+  fill: rgba(123, 227, 246, 0.85);
   fill-opacity: 0.7;
 }
 
 svg g polygon {
-  stroke: #7be3f6;
+  stroke: rgba(89, 89, 89, 0.43);
   stroke-width: 1;
   transition: fill-opacity .5s;
 }
@@ -44,4 +44,14 @@ svg g.case-drag-focus polygon {
   fill: #f67b7b;
   fill-opacity: 0.7;
   transition: fill-opacity .5s;
+}
+
+svg g.territory-owned polygon {
+  fill: rgba(196, 43, 43, 0.81);
+  fill-opacity: 0.6;
+}
+
+svg g.territory-owned-current polygon {
+  fill: rgba(22, 220, 32, 0.78) !important;
+  fill-opacity: 0.6 !important;
 }
