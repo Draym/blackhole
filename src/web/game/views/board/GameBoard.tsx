@@ -7,6 +7,11 @@ import {Territory} from "../../../../blockchain/definition/data/Territory";
 import MathUtils from "../../../../utils/MathUtils";
 import {BoardPos} from "../../data/BoardPos";
 import Web3Utils from "../../../../blockchain/Web3Utils";
+import {NokaiStore} from "../../store/NokaiStore";
+import {NokaiId} from "../../../../blockchain/definition/types";
+import {EventSubscriber} from "../../events/EventSubscriber";
+import BlackholeEventSubscriber from "../../events/BlackholeEventSubscriber";
+import {NokaiPos} from "../../../../blockchain/definition/data/NokaiPos";
 
 class Canvas {
     width: number = 1400
@@ -73,6 +78,9 @@ type GameBoardState = {
 }
 
 export default class GameBoard extends Component<GameBoardProperties, GameBoardState> {
+    blackholeEventSubscriber: EventSubscriber
+
+    nokaiPosMapping: {[key: string]: number | null} = {}
 
     constructor(props: GameBoardProperties) {
         super(props)
@@ -88,6 +96,8 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         this.boxClicked = this.boxClicked.bind(this)
         this.boxUnSelect = this.boxUnSelect.bind(this)
         this.boxHover = this.boxHover.bind(this)
+        this.onNokaiPositionUpdated = this.onNokaiPositionUpdated.bind(this)
+        this.blackholeEventSubscriber = new BlackholeEventSubscriber(this.props.blackhole, this.onNokaiPositionUpdated)
     }
 
     async componentDidMount() {
@@ -102,13 +112,38 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
             })
         });
 
+        this.blackholeEventSubscriber.subscribe()
         document.addEventListener("keydown", this._handleKeyDown)
         document.addEventListener("keyup", this._handleKeyUp)
     }
 
     componentWillUnmount() {
+        this.blackholeEventSubscriber?.unsubscribe()
         document.addEventListener("keydown", this._handleKeyDown)
         document.removeEventListener("keyup", this._handleKeyUp)
+    }
+
+    onNokaiPositionUpdated(nokaiId: NokaiId, newPos: NokaiPos | null) {
+        let positions: { [key: number]: Territory } = {}
+        const oldPos = this.nokaiPosMapping[nokaiId.toString()]
+
+        if (oldPos != null) {
+            const position = this.state.positions[oldPos]
+            position.nokaiId = BigInt(0)
+            positions[Number(nokaiId)] = position
+        }
+
+        if (newPos != null) {
+
+            if (this.nokaiPosMapping[nokaiId.toString()] = newPos) {
+
+
+
+            }
+        } else {
+            this.nokaiPosMapping[nokaiId.toString()] = null
+        }
+            this.setState({positions: {...this.state.positions, ...positions}})
     }
 
     needQueryData(startPos: bigint, endPos: bigint, startLine: bigint, endLine: bigint): boolean {

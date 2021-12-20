@@ -16,7 +16,7 @@ import GameUnexpectedError from "./error/GameUnexpectedError";
 import GameWalletNotConnected from "./error/GameWalletNotConnected";
 import GameManager from "../../../api/GameManager";
 import {DragNokai} from "../store/DragNokai";
-import NokaiEventSubscriber from "../events/NokaiEventSubscriber";
+import BlackholeEventSubscriber from "../events/BlackholeEventSubscriber";
 import MetamaskEventSubscriber from "../events/MetamaskEventSubscriber";
 import {EventSubscriber} from "../events/EventSubscriber";
 import NokaiDetailModal from "./nokai/NokaiDetailModal";
@@ -38,7 +38,6 @@ type GameViewState = {
 
 class GameView extends Component<GameViewProperties, GameViewState> {
 
-    nokaiEventSubscriber: EventSubscriber | null = null
     metamaskEventSubscriber: EventSubscriber
 
     constructor(props: GameViewProperties) {
@@ -70,7 +69,6 @@ class GameView extends Component<GameViewProperties, GameViewState> {
     }
 
     componentWillUnmount() {
-        this.nokaiEventSubscriber?.unsubscribe()
         this.metamaskEventSubscriber.unsubscribe()
     }
 
@@ -85,10 +83,6 @@ class GameView extends Component<GameViewProperties, GameViewState> {
     }
 
     componentDidUpdate(prevProps: Readonly<GameViewProperties>, prevState: Readonly<GameViewState>, snapshot?: any) {
-        if (this.state.blackhole != null && (this.nokaiEventSubscriber === null || !this.nokaiEventSubscriber.isSetup())) {
-            this.nokaiEventSubscriber = new NokaiEventSubscriber(this.state.blackhole)
-            this.nokaiEventSubscriber.subscribe()
-        }
     }
 
     /** SETUP */
