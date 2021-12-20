@@ -6,6 +6,7 @@ import BoardCase from "./BoardCase";
 import {Territory} from "../../../../blockchain/definition/data/Territory";
 import MathUtils from "../../../../utils/MathUtils";
 import {BoardPos} from "../../data/BoardPos";
+import Web3Utils from "../../../../blockchain/Web3Utils";
 
 class Canvas {
     width: number = 1400
@@ -274,7 +275,10 @@ export default class GameBoard extends Component<GameBoardProperties, GameBoardS
         if (this.state.boxSelected?.index === pos.index) {
             this.boxUnSelect()
         } else {
-            this.setState({boxSelected: pos})
+            const territory = this.state.positions[Number(pos.index)]
+            if (territory.nokaiId !== BigInt(0) && territory.owner === Web3Utils.getDefaultAccount()) {
+                this.setState({boxSelected: pos})
+            }
         }
     }
 
