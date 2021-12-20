@@ -19,6 +19,7 @@ import {DragNokai} from "../store/DragNokai";
 import NokaiEventSubscriber from "../events/NokaiEventSubscriber";
 import MetamaskEventSubscriber from "../events/MetamaskEventSubscriber";
 import {EventSubscriber} from "../events/EventSubscriber";
+import NokaiDetailModal from "./nokai/NokaiDetailModal";
 
 interface GameViewProperties extends RouteComponentProps {
 }
@@ -31,6 +32,7 @@ type GameViewState = {
     networkId: bigint | null,
     account: string | null,
     walletConnected: boolean,
+    selectedNokai: NokaiId | null,
     loading: boolean
 }
 
@@ -49,6 +51,7 @@ class GameView extends Component<GameViewProperties, GameViewState> {
             networkId: null,
             account: null,
             walletConnected: false,
+            selectedNokai: null,
             loading: true
         }
         this.setupState = this.setupState.bind(this)
@@ -59,7 +62,8 @@ class GameView extends Component<GameViewProperties, GameViewState> {
         this.loginMetamask = this.loginMetamask.bind(this)
         this.backToLobby = this.backToLobby.bind(this)
         this.areContractsValid = this.areContractsValid.bind(this)
-        this.onInventoryNokaiClicked = this.onInventoryNokaiClicked.bind(this)
+        this.onInventoryNokaiSelected = this.onInventoryNokaiSelected.bind(this)
+        this.onInventoryNokaiUnselected = this.onInventoryNokaiUnselected.bind(this)
         this.onInventoryNokaiDragged = this.onInventoryNokaiDragged.bind(this)
 
         this.metamaskEventSubscriber = new MetamaskEventSubscriber(this.setCurrentNetwork, this.setCurrentAccount)
@@ -146,8 +150,12 @@ class GameView extends Component<GameViewProperties, GameViewState> {
             this.state.nokaiStats != null
     }
 
-    onInventoryNokaiClicked(nokaiId: NokaiId) {
+    onInventoryNokaiSelected(nokaiId: NokaiId) {
+        this.setState({selectedNokai: nokaiId})
+    }
 
+    onInventoryNokaiUnselected() {
+        this.setState({selectedNokai: null})
     }
 
     async onInventoryNokaiDragged(nokaiId: NokaiId) {
@@ -167,6 +175,7 @@ class GameView extends Component<GameViewProperties, GameViewState> {
             content = <GameWalletNotConnected backToLobby={this.backToLobby} loginMetamask={this.loginMetamask}/>
         } else if (this.state.networkId != null && this.state.account != null && this.areContractsValid()) {
             content = <div>
+                {this.state.selectedNokai != null && <NokaiDetailModal nokaiId={this.state.selectedNokai} onExit={this.onInventoryNokaiUnselected}/>}
                 <GameNavbar networkId={this.state.networkId} account={this.state.account}/>
                 <div className="container-fluid mt-5">
                     <div className="row">
@@ -183,7 +192,7 @@ class GameView extends Component<GameViewProperties, GameViewState> {
                                             nokaiStats={this.state.nokaiStats!!}
                                             blackhole={this.state.blackhole!!}
                                             account={this.state.account}
-                                            onClicked={this.onInventoryNokaiClicked}
+                                            onClicked={this.onInventoryNokaiSelected}
                                             onDragged={this.onInventoryNokaiDragged}/>
                         </div>
                     </div>

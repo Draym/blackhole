@@ -120,10 +120,21 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
         }
     }
 
-    getClassName() {
+    getTerritoryClassName(): string {
         const territoryOwned = (this.props.territory.owner !== Web3Utils.nullAddress() ? " territory-owned" : "")
         const territoryOwnedByCurrent = (this.props.territory.owner === Web3Utils.getDefaultAccount() ? " territory-owned-current" : "")
         return this.props.className + territoryOwned + territoryOwnedByCurrent
+    }
+
+    getDragClassName(): string {
+        if (this.state.onDragFocus) {
+            if (this.props.territory.nokaiId !== BigInt(0) ||
+                (this.props.territory.owner !== Web3Utils.nullAddress() && this.props.territory.owner !== Web3Utils.getDefaultAccount())) {
+                return " case-drag-focus-not-allowed"
+            } else {
+                return " case-drag-focus"
+            }
+        } else return ""
     }
 
     render() {
@@ -132,7 +143,7 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
         const x = this.props.posX * this.props.size
         const y = (this.props.posY * this.props.size) - (BoardCase.spacing * this.props.posY)
         const nokai = this.props.territory.nokaiId !== BigInt(0) ? NokaiStore.get(this.props.territory.nokaiId) : null
-        return <g className={'hexagon-group ' + this.getClassName()}
+        return <g className={'hexagon-group ' + this.getTerritoryClassName()}
                   onMouseOver={e => this.onMouseOver(e)}
                   onClick={e => this.onClick(e)}
                   onDragEnter={e => {
@@ -142,7 +153,7 @@ export default class BoardCase extends Component<TerritoryProperties, TerritoryS
                       this.onDragLeave(e)
                   }}
         >
-            <g className={"hexagon" + (this.state.onDragFocus ? " case-drag-focus" : "")}>
+            <g className={"hexagon" + this.getDragClassName()}>
                 <text x={x + 24}
                       y={y + 55}
                       fill="black">{Number(this.props.x)}_{Number(this.props.y)}</text>

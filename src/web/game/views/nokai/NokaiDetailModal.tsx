@@ -5,7 +5,8 @@ import {NokaiId} from "../../../../blockchain/definition/types";
 import {NokaiStore} from "../../store/NokaiStore";
 
 interface NokaiDetailModalProperties {
-    nokaiId: NokaiId
+    nokaiId: NokaiId,
+    onExit: () => any
 }
 
 type NokaiDetailModalState = {}
@@ -16,9 +17,13 @@ export default class NokaiDetailModal extends Component<NokaiDetailModalProperti
         if (nokai != null) {
             return <div>
                 <Modal className="nokai-profile-modal"
-                       show={true} keyboard={false}
+                       show={true}
                        aria-labelledby="contained-modal-title-vcenter"
-                       centered animation={false}>
+                       keyboard={true}
+                       centered animation={false}
+                       onExit={this.props.onExit}
+                       onHide={this.props.onExit}
+                >
                     <Modal.Header><Modal.Title>Nokai: {nokai.name}</Modal.Title></Modal.Header>
                     <Modal.Body>
                         Nokai profile

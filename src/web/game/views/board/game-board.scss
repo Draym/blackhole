@@ -39,19 +39,27 @@ svg image {
 }
 
 svg g.case-drag-focus polygon {
-  stroke: #d4495e;
+  stroke: rgba(67, 152, 74, 0.9);
   stroke-width: 1;
-  fill: #f67b7b;
+  fill: rgba(88, 231, 100, 0.62);
   fill-opacity: 0.7;
   transition: fill-opacity .5s;
 }
 
+svg g.case-drag-focus-not-allowed polygon {
+  stroke: #181c1f;
+  stroke-width: 1;
+  fill: rgba(34, 38, 40, 0.76) !important;
+  fill-opacity: 0.7 !important;
+  transition: fill-opacity .5s;
+}
+
 svg g.territory-owned polygon {
-  fill: rgba(196, 43, 43, 0.81);
+  fill: rgba(196, 43, 43, 0.68);
   fill-opacity: 0.6;
 }
 
 svg g.territory-owned-current polygon {
-  fill: rgba(22, 220, 32, 0.78) !important;
-  fill-opacity: 0.6 !important;
+  fill: rgba(117, 185, 204, 0.78);
+  fill-opacity: 0.6;
 }
