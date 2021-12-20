@@ -1,7 +1,7 @@
 import NumberUtils from "../../../utils/NumberUtils";
 import {NokaiId} from "../types";
 
-enum Rarity {
+export enum Rarity {
     Spirit,
     Champion,
     Overlord,
@@ -10,7 +10,7 @@ enum Rarity {
     God
 }
 
-enum Technique {
+export enum Technique {
     SPECIALIST, // hit twice at 75%
     GUARDIAN, // block 40% dmg after defense
     GLUTTON, // steal 30% opponent's attack stat
