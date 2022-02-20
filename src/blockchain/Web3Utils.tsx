@@ -50,12 +50,11 @@ export default class Web3Utils {
     }
 
     static async getNetwork(): Promise<bigint> {
-        console.log("get network")
         return window.web3.eth.net.getId()
     }
 
     static async getAccounts(): Promise<Address[]> {
-        return await window.ethereum.request({method: 'eth_accounts'})
+        return window.ethereum.request({method: 'eth_accounts'})
     }
 
     static getDefaultAccount(): Address | null {
